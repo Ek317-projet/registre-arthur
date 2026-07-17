@@ -3395,3 +3395,20 @@ header {
 .stock-item-added {
     animation: rdr2-item-add 1s ease-out forwards;
 }
+
+/* --- OPTIMISATION GRAND ÉCRAN (PC) --- */
+@media (min-width: 1024px) {
+    /* 1. On permet à l'application de s'étaler sur la largeur */
+    .main-container {
+        max-width: 1500px !important; 
+        width: 95% !important;
+    }
+
+    /* 2. On répartit parfaitement l'espace de la page Stock */
+    .stock-interface {
+        display: grid !important;
+        grid-template-columns: 350px 1fr !important; /* 350px à gauche, tout le reste à droite */
+        gap: 40px !important;
+        align-items: start !important;
+    }
+}
