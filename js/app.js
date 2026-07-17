@@ -1,7 +1,7 @@
 // =========================================================
 // --- INITIALISATION DU THÈME ---
 // =========================================================
-let currentTheme = localStorage.getItem('rdr2_tracker_theme') || 'RDR2 Clair';
+let currentTheme = localStorage.getItem('app-theme') || 'theme-rdr2-light';
 
 // Exporte les données en téléchargement direct
 function exportData() {
@@ -294,7 +294,7 @@ const appThemes = [
 ];
 
 if (typeof window.memoryThemeFallback === 'undefined') {
-    window.memoryThemeFallback = 'theme-modern';
+    window.memoryThemeFallback = 'theme-rdr2-light';
 }
 
 function cycleTheme() {
