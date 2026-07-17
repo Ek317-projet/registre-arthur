@@ -1,7 +1,7 @@
 // =========================================================
 // --- INITIALISATION DU THÈME ---
 // =========================================================
-let currentTheme = localStorage.getItem('rdr2_tracker_theme') || 'default';
+let currentTheme = localStorage.getItem('rdr2_tracker_theme') || 'rdr2-light';
 
 // Exporte les données en téléchargement direct
 function exportData() {
