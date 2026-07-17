@@ -2399,7 +2399,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.history.replaceState(null, null, '#dashboard');
     }
     
-    let initialTheme = 'theme-modern';
+    let initialTheme = 'theme-rdr2-light';
     try {
         let localValue = localStorage.getItem('app-theme');
         if (localValue) initialTheme = localValue;
