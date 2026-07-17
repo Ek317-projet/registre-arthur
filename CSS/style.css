@@ -1,0 +1,3397 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+
+:root {
+    --bg-color: #1a1a1a;
+    --card-bg: #262626;
+    --accent-color: #b32424;
+    --accent-hover: #d93636;
+    --text-color: #e6e6e6;
+    --text-muted: #a6a6a6;
+    --border-color: #404040;
+    --success-color: #2e7d32;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-tap-highlight-color: transparent; /* Désactive le carré bleu sur mobile */
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-size: 16px;
+    padding-bottom: 120px; 
+}
+
+/* Animation de l'en-tête */
+header {
+    transition: transform 0.3s ease;
+}
+.header-hidden {
+    transform: translateY(-100%);
+}
+
+/* On ajuste le main-container pour que le contenu ne soit pas coupé */
+@media (max-width: 768px) {
+    body { padding-top: 120px; } /* Espace pour le header */
+    header { position: fixed; width: 100%; top: 0; }
+}
+
+header {
+    background-color: var(--card-bg);
+    padding: 18px 15px;
+    border-bottom: 2px solid var(--accent-color);
+    position: sticky;
+    top: 0;
+    z-index: 1001 !important; /* Ligne modifiée : on le met au-dessus du fond noir */
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.menu-trigger {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2.2rem;
+    cursor: pointer;
+    padding: 0;
+}
+
+@media (min-width: 768px) {
+    .header-container {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .header-top {
+        width: auto;
+        gap: 20px;
+    }
+    .menu-trigger {
+        order: 2; /* Met le bouton à droite sur PC aussi si besoin */
+    }
+}
+
+h1 {
+    font-size: 1.8rem;
+    color: #fff;
+    margin: 0;
+}
+
+.search-bar {
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    margin-top: 5px;
+}
+
+.search-bar input {
+    width: 100%;
+    padding: 12px 20px;
+    border-radius: 24px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: #fff;
+    font-size: 1rem;
+    min-height: 44px; 
+}
+
+.search-bar input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.main-container {
+    max-width: 1200px;
+    margin: 25px auto;
+    padding: 0 15px;
+}
+
+.view-section {
+    display: none;
+}
+
+.view-section.active {
+    display: block;
+}
+
+/* Dashboard */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+@media (min-width: 576px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 992px) {
+    #view-dashboard .dashboard-grid:nth-of-type(1) {
+        grid-template-columns: repeat(4, 1fr); 
+    }
+    #view-dashboard .dashboard-grid:nth-of-type(2) {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.card {
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    padding: 22px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
+.card h3 {
+    margin-bottom: 15px;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.progress-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.progress-value {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.progress-bar-bg {
+    background-color: rgba(255,255,255,0.1);
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    background-color: var(--accent-color);
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.stat-number {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: #ffffff; /* Était var(--accent-color) */
+    text-align: center;
+    margin: 10px 0;
+}
+
+/* --- SECTION TABLEAUX --- */
+
+.data-table-container {
+    width: 100%;
+    overflow-x: auto; 
+    background: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    margin-bottom: 20px;
+}
+
+.data-table {
+    width: 100%;
+    min-width: 320px;
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-size: 0.85rem; 
+}
+
+/* --- HARMONISATION DE LA HAUTEUR DES LIGNES --- */
+.data-table tr {
+    height: 70px;
+}
+
+/* Harmonisation des largeurs (Garantit le centrage parfait de la colonne 2) */
+.data-table th:nth-child(1), .data-table td:nth-child(1) { width: 35%; }
+.data-table th:nth-child(2), .data-table td:nth-child(2) { width: 30%; text-align: center; }
+.data-table th:nth-child(3), .data-table td:nth-child(3) { width: 35%; }
+
+/* --- GESTION DES EN-TÊTES (Les titres en haut) --- */
+.data-table th {
+    border-bottom: 2px solid var(--border-color);
+    font-weight: bold;
+}
+.data-table th:nth-child(1) { padding-left: 50px; text-align: left; color: #ddd; }
+.data-table th:nth-child(2) { color: #fff; }
+.data-table th:nth-child(3) { padding-right: 50px; text-align: right; }
+
+/* --- GESTION DU CONTENU (Les données) --- */
+.data-table td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    word-wrap: break-word;
+    font-weight: normal; 
+    vertical-align: middle;
+}
+.data-table td:nth-child(1) { padding-left: 20px; text-align: left; color: #ddd; }
+.data-table td:nth-child(2) { font-weight: bold; color: #fff; }
+.data-table td:nth-child(3) { padding-right: 20px; text-align: right; }
+
+/* --- CORRECTION RECELEUR (Cases à cocher) --- */
+#table-receleur td:nth-child(3), 
+#table-receleur th:nth-child(3) {
+    text-align: center;
+    padding-right: 0;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    #table-stock .action-buttons { display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
+}
+
+/* Lignes terminées (sans barrer les boutons + et -) */
+.row-complete { opacity: 0.4; background-color: rgba(0, 0, 0, 0.2) !important; transition: opacity 0.3s ease; }
+.row-complete td { color: var(--text-muted); text-decoration: none; }
+.row-complete td:nth-child(1),
+.row-complete td:nth-child(2),
+.row-complete .numeric-text { text-decoration: line-through; }
+
+/* Autres éléments du tableau */
+.numeric-control { display: flex; align-items: center; justify-content: center; gap: 12px; height: 100%; width: 100%; }
+.numeric-text { font-size: 0.95rem; color: var(--text-muted); font-weight: bold; white-space: nowrap; }
+
+.btn-mini { background: none; border: none; color: var(--text-muted); font-size: 1.6rem; font-weight: bold; cursor: pointer; padding: 0 10px; min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; transition: color 0.2s, transform 0.1s; user-select: none; }
+.btn-mini:hover { background: none; color: var(--accent-hover); transform: scale(1.2); }
+
+.badge-done { background-color: rgba(46, 125, 50, 0.15); color: #4caf50; border: 1px solid rgba(46, 125, 50, 0.4); padding: 4px 12px; border-radius: 14px; font-size: 0.85rem; font-weight: bold; display: inline-block; }
+.badge-progress { background-color: rgba(217, 119, 6, 0.15); color: #f59e0b; border: 1px solid rgba(217, 119, 6, 0.3); padding: 2px 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; display: inline-block; margin-top: 5px; }
+
+/* Formulaire Stock */
+.stock-interface { display: grid; grid-template-columns: 1fr; gap: 20px; }
+@media (min-width: 768px) { .stock-interface { grid-template-columns: 1fr 2fr; } }
+
+.form-group { margin-bottom: 18px; }
+.form-group label { display: block; margin-bottom: 8px; color: var(--text-muted); }
+.form-group input, .form-group select { width: 100%; padding: 12px; background-color: var(--bg-color); border: 1px solid var(--border-color); color: #fff; border-radius: 6px; font-size: 1rem; min-height: 44px; }
+
+.btn { background-color: var(--accent-color); color: white; border: none; padding: 14px 22px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.05rem; min-height: 48px; transition: background 0.2s; }
+.btn:hover { background-color: var(--accent-hover); }
+.btn-dark { background-color: #444; }
+.btn-danger { background-color: #7e1515; }
+
+.action-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn-action { padding: 10px 12px; font-size: 0.9rem; border: none; border-radius: 6px; cursor: pointer; color: white; width: 100%; min-height: 44px; font-weight: bold;}
+.btn-camp { background-color: #2b5797; }
+.btn-rec { background-color: #da532c; }
+.btn-trap { background-color: #603cba; }
+.btn-del { background-color: #7e1515; }
+
+.allocation-box { background-color: rgba(179, 36, 36, 0.1); border: 1px solid var(--accent-color); padding: 15px; border-radius: 6px; margin-bottom: 15px; display: none; }
+.allocation-title { font-weight: bold; margin-bottom: 10px; color: #fff; }
+.allocation-options { display: flex; flex-direction: column; gap: 10px; }
+
+.checkbox-item { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; cursor: pointer; min-height: 44px; }
+
+/* --- BARRE DE NAVIGATION MULTI-ÉCRANS --- */
+nav.nav-bar { 
+    position: fixed; 
+    bottom: 15px; 
+    left: 15px; 
+    right: 15px; 
+    max-width: 1200px; 
+    margin: 0 auto; 
+    background-color: var(--card-bg); 
+    border: 1px solid var(--border-color); 
+    border-radius: 18px; 
+    display: flex; 
+    justify-content: flex-start; 
+    overflow-x: auto; 
+    scroll-snap-type: x mandatory; 
+    -webkit-overflow-scrolling: touch; 
+    z-index: 100; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.7); 
+    padding: 10px;
+    gap: 8px;
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
+}
+nav.nav-bar::-webkit-scrollbar { display: none; }
+
+.nav-item { 
+    flex: 0 0 75px; 
+    scroll-snap-align: start; 
+    text-align: center; 
+    padding: 10px 4px; 
+    color: var(--text-muted); 
+    text-decoration: none; 
+    font-size: 0.75rem; 
+    cursor: pointer; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    gap: 6px; 
+    border-radius: 14px; 
+    transition: background 0.2s, color 0.2s; 
+}
+.nav-item i { font-size: 1.6rem; line-height: 1; display: inline-block; font-style: normal !important; }
+.nav-item.active { color: #fff; background-color: rgba(255, 255, 255, 0.1); font-weight: bold; }
+
+@media (min-width: 768px) {
+    nav.nav-bar {
+        justify-content: space-around; 
+        overflow-x: visible; 
+    }
+    .nav-item {
+        flex: 1; 
+    }
+}
+
+/* --- CORRECTION DU VIDE NOIR EN HAUT (Effet élastique) --- */
+html, body {
+    overscroll-behavior-y: none; 
+}
+
+/* --- ANIMATION FLUIDE DE L'EN-TÊTE --- */
+header {
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); /* Courbe d'animation "glissante" très naturelle */
+}
+.header-hidden {
+    transform: translateY(-100%);
+}
+
+/* --- BOUTON RETOUR : ANIMATIONS ET DESIGN --- */
+.undo-btn {
+    position: fixed; 
+    bottom: 140px; 
+    right: 40px; 
+    background-color: rgba(45, 45, 45, 0.8);
+    backdrop-filter: blur(8px);
+    color: var(--text-color);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    width: 48px; 
+    height: 48px; 
+    border-radius: 50%; 
+    cursor: pointer; 
+    box-shadow: 0 8px 16px rgba(0,0,0,0.5); 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: 1.5rem; 
+    line-height: 0;
+    padding-bottom: 2px;
+    z-index: 99; 
+    /* Transition fluide pour le survol */
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Effet très sympa quand la souris passe dessus (PC) */
+.undo-btn:hover {
+    transform: scale(1.15) rotate(-15deg); /* S'agrandit un peu et tourne légèrement vers la gauche */
+    box-shadow: 0 12px 24px rgba(0,0,0,0.7);
+    background-color: rgba(70, 70, 70, 0.9);
+}
+
+/* L'animation quand on maintient le clic */
+.undo-btn:active {
+    transform: scale(0.85); 
+    background-color: rgba(20, 20, 20, 0.9);
+}
+
+/* La classe injectée par le JS pour la grande rotation au clic */
+.animate-undo-click {
+    animation: spin-undo 0.4s ease-out;
+}
+
+/* L'animation de rotation complète (anti-horaire vu que c'est un bouton "retour") */
+@keyframes spin-undo {
+    0% { transform: scale(0.85) rotate(0deg); }
+    50% { transform: scale(1.1) rotate(-180deg); }
+    100% { transform: scale(1) rotate(-360deg); }
+}
+
+/* Ajustement de la position UNIQUEMENT sur mobile */
+@media (max-width: 768px) {
+    .undo-btn {
+        bottom: 145px; 
+        right: 20px;  
+    }
+}
+
+
+.data-table input[type="checkbox"] { width: 24px; height: 24px; cursor: pointer; accent-color: var(--success-color); vertical-align: middle; transition: transform 0.1s ease; }
+.data-table input[type="checkbox"]:hover { transform: scale(1.15); }
+.data-table td:last-child input[type="checkbox"] { display: block; margin: 0 auto; }
+.data-table td .checkbox-item input[type="checkbox"] { display: inline-block; margin: 0; }
+
+/* --- BARRE DE PROGRESSION ET BOUTONS --- */
+.progress-container { display: flex; align-items: center; justify-content: flex-end; gap: 2px; width: 100%; }
+
+/* 💡 On retire le "display: none" pour forcer l'affichage sur mobile */
+.mini-bar-bg { width: 35px; height: 6px; background-color: #333; border-radius: 4px; overflow: hidden; display: block; }
+@media (min-width: 500px) { .mini-bar-bg { width: 60px; height: 8px; } } 
+
+.mini-bar-fill { height: 100%; background-color: var(--accent-color); width: 0%; transition: width 0.3s ease; }
+
+/* 💡 On resserre légèrement les marges des boutons pour tout faire rentrer */
+.btn-mini { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; font-weight: bold; cursor: pointer; padding: 0 4px; min-height: 40px; min-width: 32px; display: inline-flex; align-items: center; justify-content: center; transition: color 0.2s, transform 0.1s; user-select: none; }
+.btn-mini:hover { background: none; color: var(--accent-hover); transform: scale(1.2); }
+
+.numeric-text { font-size: 0.85rem; color: var(--text-muted); font-weight: bold; white-space: nowrap; width: 35px; text-align: left; }
+
+#table-hunting-list { table-layout: fixed; }
+#table-hunting-list th:nth-child(1), #table-hunting-list td:nth-child(1) { width: 35%; }
+#table-hunting-list th:nth-child(2), #table-hunting-list td:nth-child(2) { width: 20%; text-align: center; }
+#table-hunting-list th:nth-child(3), #table-hunting-list td:nth-child(3) { width: 20%; text-align: center; }
+#table-hunting-list th:nth-child(4), #table-hunting-list td:nth-child(4) { width: 25%; text-align: center; }
+
+/* --- STYLE DU PANNEAU PARAMETRES (ANIMATION MAC CORRIGÉE) --- */
+.settings-overlay {
+    position: fixed; 
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); 
+    z-index: 1000; 
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    display: flex;
+    align-items: flex-start; /* Aligne la fenêtre vers le haut */
+}
+
+.settings-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.settings-content { 
+    background: var(--card-bg); 
+    padding: 25px; 
+    border-radius: 12px; 
+    border: 1px solid var(--border-color); 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
+    max-width: 400px; 
+    width: calc(100% - 30px); 
+    
+    /* Préparation de l'animation Mac */
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+}
+
+/* 📱 SUR MOBILE : L'icône hamburger est en haut à droite */
+@media (max-width: 767px) {
+    .settings-overlay {
+        justify-content: flex-end; /* Aligne à droite */
+        padding-right: 15px; 
+        padding-top: 75px; /* Décolle du bord haut */
+    }
+    .settings-content {
+        transform-origin: top right; /* Jaillit du coin droit */
+        transform: scale(0.1); 
+    }
+}
+
+/* 💻 SUR PC : L'icône hamburger est à gauche, collée au titre */
+@media (min-width: 768px) {
+    .settings-overlay {
+        justify-content: flex-start; /* Aligne à gauche */
+        padding-top: 85px; 
+    }
+    .settings-content {
+        /* On pousse la fenêtre vers la droite pour qu'elle tombe PILE sous les 3 traits */
+        margin-left: calc(max(15px, (100vw - 1200px) / 2) + 260px); 
+        transform-origin: top left; /* Jaillit du coin gauche */
+        transform: scale(0.1); 
+    }
+}
+
+.settings-overlay.show .settings-content {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.settings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.settings-header h3 { margin: 0; font-size: 1.3rem; color: #fff; }
+.close-btn { background: none; border: none; color: #ff4c4c; font-size: 1.8rem; cursor: pointer; }
+.settings-desc { margin-bottom: 20px; font-size: 0.9rem; color: var(--text-muted); line-height: 1.4; }
+.backup-controls-vertical { display: flex; flex-direction: column; gap: 12px; }
+.settings-divider { border: 0; border-top: 1px solid var(--border-color); margin: 10px 0; }
+
+/* --- OPTIMISATIONS MOBILES (Tableaux et Boutons) --- */
+
+/* Bouton pour afficher/masquer les colonnes (Caché sur PC) */
+.mobile-toggle-btn {
+    display: none; 
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--accent-color);
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+}
+
+@media (max-width: 768px) {
+    /* Afficher le bouton uniquement sur téléphone */
+    .mobile-toggle-btn {
+        display: block; 
+    }
+    
+    /* Correction de l'écrasement : On annule les marges de 50px sur mobile */
+    .data-table th:nth-child(1) { padding-left: 10px; }
+    .data-table th:nth-child(3) { padding-right: 10px; }
+    .data-table td:nth-child(1) { padding-left: 10px; }
+    .data-table td:nth-child(3) { padding-right: 10px; }
+    
+    #table-hunting-list { min-width: 500px; }
+
+    /* Masquer la colonne 1 (Camp et Trappeur) par défaut */
+    table.mobile-hide-col1 th:nth-child(1),
+    table.mobile-hide-col1 td:nth-child(1) {
+        display: none;
+    }
+    
+    /* Les colonnes restantes prennent 50% de l'écran chacune */
+    table.mobile-hide-col1 th:nth-child(2), table.mobile-hide-col1 td:nth-child(2) { width: 50%; }
+    table.mobile-hide-col1 th:nth-child(3), table.mobile-hide-col1 td:nth-child(3) { width: 50%; }
+
+    /* Quand tu cliques sur le bouton, on force le tableau à être large pour swiper */
+    table.mobile-show-col1 {
+        min-width: 600px; 
+    }
+    table.mobile-show-col1 th:nth-child(1),
+    table.mobile-show-col1 td:nth-child(1) {
+        display: table-cell;
+        width: 35%;
+    }
+
+    /* --- NOUVELLES CORRECTIONS CI-DESSOUS --- */
+
+    /* 1. Centrage parfait de la colonne Progression (Camp / Trappeur) */
+    table.mobile-hide-col1 th:nth-child(3),
+    table.mobile-hide-col1 td:nth-child(3) {
+        text-align: center; /* Centre le mot "Progression" */
+        padding-right: 0;
+    }
+    table.mobile-hide-col1 .progress-container {
+        justify-content: center; /* Centre la barre et les boutons sous le texte */
+    }
+
+    /* 2. Receleur : Empêcher l'écrasement du texte (Swipe horizontal forcé) */
+    #table-receleur {
+        min-width: 550px; /* Tableau plus large que l'écran */
+    }
+    #table-receleur .checkbox-item span {
+        white-space: nowrap; /* Interdit au texte des composants de sauter des lignes */
+    }
+}
+
+/* --- OPTIMISATIONS CLAVIER (Masquer l'UI quand on tape UNIQUEMENT SUR MOBILE/IPAD) --- */
+@media (max-width: 1024px) {
+    body.stock-typing header {
+        display: none !important;
+    }
+    body.stock-typing .nav-bar,
+    body.stock-typing .undo-btn {
+        display: none !important;
+    }
+}
+
+/* --- RÉDUCTION DES BOUTONS DU STOCK SUR MOBILE --- */
+@media (max-width: 600px) {
+    /* On remplace la colonne écrasante par une grille compacte */
+    #table-stock .action-buttons { 
+        display: flex; 
+        flex-direction: row; 
+        flex-wrap: wrap; 
+        gap: 6px; 
+        justify-content: center;
+    }
+    #table-stock .btn-action { 
+        flex: 1 1 calc(50% - 6px); /* Permet d'afficher 2 boutons par ligne */
+        min-height: 38px; /* Moins haut */
+        padding: 6px 4px; 
+        font-size: 0.8rem; /* Texte légèrement plus petit */
+        margin: 0;
+    }
+}
+
+/* --- COMPORTEMENT NATUREL DE L'EN-TÊTE SUR MOBILE --- */
+@media (max-width: 768px) {
+    header {
+        position: relative !important; /* L'en-tête fait partie de la page, il ne flotte plus */
+        transform: none !important; /* Désactive toute animation de glissement */
+    }
+    body {
+        padding-top: 0 !important; /* Retire l'espace vide potentiel */
+    }
+
+    /* --- OPTIMISATIONS RECELEUR MOBILE --- */
+    
+    /* 1. On annule la largeur forcée pour que ça rentre sur un écran ! */
+    #table-receleur.mobile-hide-col1 {
+        min-width: 100% !important;
+        width: 100% !important;
+    }
+
+    /* Le swipe ne s'active QUE si on clique sur "Afficher les noms" */
+    #table-receleur.mobile-show-col1 {
+        min-width: 650px !important; 
+    }
+
+    /* 2. Adaptation stricte des cases et textes des Talismans */
+    #table-receleur .checkbox-item {
+        display: flex !important;
+        align-items: center !important; /* Centre parfaitement le texte avec la case */
+        justify-content: flex-start;
+        gap: 8px !important; /* Espacement STRICT et identique pour toutes les cases */
+        margin-bottom: 6px;
+    }
+    
+    #table-receleur .checkbox-item input[type="checkbox"] {
+        flex-shrink: 0;
+        width: 18px !important; /* Légèrement réduit pour faire de la place */
+        height: 18px !important;
+        margin: 0 !important; /* Supprime tous les espacements parasites */
+    }
+    
+    #table-receleur .checkbox-item span {
+        font-size: 0.75rem !important; /* Texte réduit pour mieux s'aligner à l'horizontale */
+        text-align: left;
+        line-height: 1.2;
+        white-space: normal !important; 
+    }
+
+    /* 3. Masque le Nom des Amulettes et donne 85% de l'écran à la ressource */
+    #table-receleur.mobile-hide-col1 tr.row-amulet td:nth-child(1) {
+        display: none;
+    }
+    #table-receleur.mobile-hide-col1 tr.row-amulet td:nth-child(2) {
+        width: 85%;
+        padding-left: 10px !important; /* 💡 Décolle le texte du bord gauche */
+    }
+
+    /* 4. Maintient le Nom des Talismans visible avec des largeurs millimétrées */
+    #table-receleur.mobile-hide-col1 tr.row-talisman td:nth-child(1) {
+        display: table-cell;
+        width: 38%; /* Prends juste ce qu'il faut pour le nom */
+        padding-right: 5px;
+    }
+    #table-receleur.mobile-hide-col1 tr.row-talisman td:nth-child(2) {
+        width: 47%; /* Reste de l'espace pour les composants */
+        padding-left: 0;
+    }
+
+    /* 5. Masque le texte "À fabriquer" */
+    .text-fabriquer {
+        display: none;
+    }
+    
+    /* 6. Fixe la colonne statut/case à cocher */
+    #table-receleur.mobile-hide-col1 td:nth-child(3) {
+        width: 15% !important;
+    }
+
+    /* 7. Quand on affiche les noms (swipe), le texte redevient 100% horizontal */
+    #table-receleur.mobile-show-col1 .checkbox-item span {
+        white-space: nowrap !important;
+    }
+
+}
+
+/* --- AUTOCOMPLÉTION MODERNE ET NETTE (STOCK) --- */
+.autocomplete-container { 
+    position: relative; 
+    display: block; 
+}
+
+/* 1. On force les deux cases à avoir EXACTEMENT la même taille au millimètre près */
+.autocomplete-input {
+    width: 100%;
+    height: 45px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    font-family: inherit;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin: 0;
+    border: 1px solid #444;
+    line-height: normal;
+}
+
+/* 2. Le fond noir profond avec le texte de suggestion gris clair */
+#stock-animal-ghost { 
+    position: absolute; 
+    top: 0; left: 0; 
+    color: #777; /* Texte suggéré */
+    background-color: #1a1a1a !important; /* Beau fond noir identique à la case quantité */
+    z-index: 1; 
+    pointer-events: none; 
+}
+
+/* 3. La vraie case avec texte blanc et fond 100% transparent */
+#stock-animal { 
+    position: relative; 
+    z-index: 2; 
+    background-color: transparent !important; 
+    color: #fff !important; /* Texte que tu tapes en blanc */
+}
+
+/* La flèche du menu */
+.autocomplete-arrow { 
+    position: absolute; 
+    right: 10px; 
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer; 
+    z-index: 3; 
+    padding: 5px; 
+    font-size: 0.9rem; 
+    color: var(--accent-hover, #d1b279); 
+}
+
+/* Le menu déroulant */
+.custom-dropdown { 
+    position: absolute; 
+    top: 100%; left: 0; 
+    width: 100%; 
+    max-height: 220px; 
+    overflow-y: auto; 
+    background-color: #222; 
+    border: 1px solid #444; 
+    border-radius: 4px; 
+    z-index: 100; 
+    list-style: none; 
+    padding: 0; 
+    margin-top: 5px; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.8); 
+}
+.custom-dropdown li { 
+    padding: 12px 15px; 
+    cursor: pointer; 
+    border-bottom: 1px solid #333; 
+    color: #e6e6e6; 
+    font-size: 0.95rem; 
+}
+.custom-dropdown li:hover, .custom-dropdown li:active { 
+    background-color: var(--accent-hover, #d1b279); 
+    color: #111; 
+    font-weight: bold;
+}
+
+/* --- OPTIMISATIONS TABLEAU STOCK (Couleurs et Alignement) --- */
+/* On force l'alignement parfait à gauche sous l'en-tête "Ressource" */
+#table-stock th:first-child,
+#table-stock td:first-child {
+    text-align: left !important;
+    padding-left: 30px !important; 
+    justify-content: flex-start !important; /* Si le tableau utilise Flexbox en coulisses */
+}
+/* On donne de vraies couleurs alternées aux lignes (plus de gris sur gris) */
+#table-stock tbody tr {
+    background-color: #2a2a2a; /* Gris anthracite propre */
+    border-bottom: 1px solid #444;
+}
+#table-stock tbody tr:nth-child(even) {
+    background-color: #1f1f1f; /* Plus foncé pour alterner */
+}
+#table-stock td {
+    color: #ffffff !important; /* Texte bien blanc et lisible */
+}
+
+/* --- NOUVEAUX AJUSTEMENTS DESIGN STOCK --- */
+
+/* 1. Flèche de la liste déroulante en gris au lieu de la couleur vive */
+.autocomplete-arrow {
+    color: #888 !important; 
+}
+
+/* 2. Champ Quantité et ses petites flèches en mode sombre */
+#stock-qty {
+    color-scheme: dark; /* Oblige le navigateur à mettre les flèches en gris foncé */
+    background-color: #1a1a1a !important; /* Fond noir identique au rectangle de l'animal */
+    color: #fff !important;
+    border: 1px solid #444 !important;
+}
+
+/* 3. En-tête du tableau de Stock : couleur adoucie et fond noir */
+#table-stock thead th {
+    background-color: #1a1a1a !important; 
+    color: #a0a0a0 !important; /* Gris doux identique au texte de tes labels */
+    border-bottom: 1px solid #444 !important;
+}
+
+/* 4. Centrage strict et couleur adoucie pour le nombre de la quantité */
+#table-stock th:nth-child(2),
+#table-stock td:nth-child(2) {
+    text-align: center !important;
+    justify-content: center !important;
+}
+#table-stock td:nth-child(2) span {
+    color: #a0a0a0 !important; /* Le chiffre de la quantité passe aussi en gris doux */
+}
+
+/* 5. L'astuce du "Wrapper" pour des angles 100% ronds et infaillibles */
+#view-stock .data-table-container {
+    border: 1px solid #444 !important;
+    border-radius: 6px !important;
+    overflow: hidden !important; /* C'est cette ligne qui coupe net ce qui dépasse */
+    background-color: #1a1a1a; 
+}
+
+/* On enlève la bordure du tableau lui-même pour ne laisser que celle de la boîte */
+#table-stock {
+    border: none !important; 
+    border-radius: 0 !important;
+}
+
+/* On annule les vieux arrondis qui cassaient tout */
+#table-stock thead th:first-child,
+#table-stock thead th:last-child,
+#table-stock tbody tr:last-child td:first-child,
+#table-stock tbody tr:last-child td:last-child {
+    border-radius: 0 !important; 
+}
+
+/* On retire la petite ligne du bas sur la dernière ressource pour un fini propre */
+#table-stock tbody tr:last-child td {
+    border-bottom: none !important;
+}
+
+/* --- CARTES DU DASHBOARD CLIQUABLES --- */
+.clickable-card {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+/* Effet de survol sur PC */
+.clickable-card:hover {
+    transform: translateY(-3px); /* Soulève légèrement la carte */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6); /* Accentue l'ombre sous la carte */
+    background-color: #262626; /* Éclaircit très légèrement le fond */
+}
+
+/* Effet d'enfoncement quand on clique (PC et Mobile) */
+.clickable-card:active {
+    transform: translateY(2px); /* La carte s'enfonce sous le doigt */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+html {
+    scroll-padding-top: 100px; /* Décale le scroll pour ne pas être caché sous l'en-tête */
+}
+
+/* --- ANIMATION BARRE DE NAVIGATION --- */
+.nav-item {
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* Effet au survol sur PC */
+.nav-item:hover {
+    transform: translateY(-5px); /* Se soulève */
+    opacity: 1; /* Devient plus visible */
+}
+
+/* Effet quand on appuie (actif) */
+.nav-item:active {
+    transform: translateY(0); /* Redescend */
+}
+
+/* --- ANIMATION BOUTON MENU --- */
+.menu-trigger {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7); /* Rend l'icône moins agressive en la grisant un peu */
+    font-size: 1.8rem; /* Légèrement plus petite */
+    font-weight: 300; /* Rend les traits plus fins */
+    cursor: pointer;
+    padding: 0;
+    display: inline-block;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); /* La même fluidité que le bouton retour */
+}
+
+.menu-trigger:hover {
+    transform: scale(1.15) rotate(-15deg); /* Même rotation que le bouton retour */
+    color: #fff; /* S'éclaire au survol */
+}
+
+.menu-trigger:active {
+    transform: scale(0.85); /* S'enfonce au clic */
+}
+
+/* --- SUPPRESSION DU CARRÉ BLEU TACTILE --- */
+* {
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+.nav-item, .clickable-card, .btn, .btn-action, .menu-trigger, .btn-mini {
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+/* ========================================================= */
+/* --- THÈMES IMMERSIFS RDR2 (SOMBRE ET CLAIR) --- */
+/* ========================================================= */
+
+/* 1. THÈME SOMBRE (Ambiance Menu de pause - Éclairci) */
+body.theme-rdr2-dark {
+    --bg-color: #b59e82; 
+    --card-bg: #2b211b; 
+    --accent-color: #9e1f1e; 
+    --accent-hover: #c42b29;
+    --text-color: #e3d2ba; 
+    --text-muted: #a3937c; 
+    --border-color: #4a3a2e;
+    
+    /* 👇 Nouvelles couleurs de listes éclaircies 👇 */
+    --table-bg: #4a3e33; /* Fond principal des lignes (marron doux) */
+    --table-header: rgba(34, 26, 21, 0.95); /* On garde l'en-tête très sombre pour le contraste */
+    --table-stripe: #55483c; /* Une ligne sur deux légèrement plus claire pour zébrer */
+    --bar-bg: rgba(0, 0, 0, 0.4); 
+}
+
+/* 2. THÈME CLAIR (Ambiance Carte / Carnet) */
+body.theme-rdr2-light {
+    --bg-color: #d3c4b1; /* Fond général parchemin clair */
+    --card-bg: #b59e82; /* Cartes du Dashboard nettement plus foncées */
+    --accent-color: #8a1a19; 
+    --accent-hover: #b32424;
+    --text-color: #2a1f18; /* Texte encre sombre */
+    --text-muted: #6b523e; 
+    --border-color: #957f66; /* Bordures marquées */
+    --table-bg: #b59e82; /* Les listes prennent la même couleur foncée que les cartes */
+    --table-header: #2a1f18; /* En-tête noir/encre */
+    --table-stripe: rgba(42, 31, 24, 0.06); /* Couleur deuxième ligne texte */
+    --bar-bg: rgba(42, 31, 24, 0.2); /* Barre de progression bien visible */
+}
+
+/* --- RÈGLES COMMUNES AUX DEUX THÈMES RDR2 --- */
+body[class*="theme-rdr2"] {
+    font-family: 'Playfair Display', "Georgia", serif; 
+}
+
+/* Polices Western pour les titres */
+body[class*="theme-rdr2"] h1, 
+body[class*="theme-rdr2"] h2, 
+body[class*="theme-rdr2"] h3,
+body[class*="theme-rdr2"] .nav-item,
+body[class*="theme-rdr2"] .data-table thead th,
+body[class*="theme-rdr2"] .stat-number,
+body[class*="theme-rdr2"] .progress-value {
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 2px;
+    font-weight: normal;
+}
+
+body[class*="theme-rdr2"] .stat-number,
+body[class*="theme-rdr2"] .progress-value {
+    color: var(--text-color);
+}
+
+body[class*="theme-rdr2"] .card, 
+body[class*="theme-rdr2"] .btn, 
+body[class*="theme-rdr2"] .btn-action,
+body[class*="theme-rdr2"] .data-table-container {
+    border-radius: 2px !important; 
+}
+
+/* --- ADAPTATION DE L'EN-TÊTE (HEADER) --- */
+body[class*="theme-rdr2"] header {
+    background-color: var(--card-bg) !important;
+    border-bottom-color: var(--accent-color) !important;
+}
+
+body.theme-rdr2-light h1,
+body.theme-rdr2-light #view-title,
+body.theme-rdr2-light .menu-trigger {
+    color: var(--text-color) !important;
+}
+
+/* --- LE TABLEAU (S'applique aussi au STOCK) --- */
+body[class*="theme-rdr2"] .data-table-container,
+body[class*="theme-rdr2"] #view-stock .data-table-container {
+    background-color: var(--table-bg) !important; 
+    border: 1px solid var(--border-color) !important;
+}
+
+body[class*="theme-rdr2"] .data-table thead th,
+body[class*="theme-rdr2"] #table-stock thead th {
+    background-color: var(--table-header) !important; 
+    color: #d8c3a5 !important; 
+    border-bottom: 2px solid #8a1a19 !important; 
+    font-size: 1.2rem;
+}
+
+body[class*="theme-rdr2"] .data-table tbody tr,
+body[class*="theme-rdr2"] #table-stock tbody tr {
+    background-color: transparent !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+body[class*="theme-rdr2"] .data-table tbody tr:nth-child(even),
+body[class*="theme-rdr2"] #table-stock tbody tr:nth-child(even) {
+    background-color: var(--table-stripe) !important; 
+}
+
+body[class*="theme-rdr2"] .data-table td,
+body[class*="theme-rdr2"] .data-table td strong,
+body[class*="theme-rdr2"] #table-stock td {
+    color: var(--text-color) !important; 
+}
+
+/* --- CORRECTION DÉFINITIVE DES CHAMPS ET DE LA LISTE DÉROULANTE --- */
+
+/* 1. Le fond et la bordure s'appliquent sur la Quantité et le texte Fantôme */
+body[class*="theme-rdr2"] #stock-qty,
+body[class*="theme-rdr2"] #stock-animal-ghost,
+body[class*="theme-rdr2"] .custom-dropdown {
+    background-color: var(--table-header) !important; /* Unifié : prend le même brun que les boutons */
+    border: 1px solid var(--border-color) !important; /* Unifié : prend la même bordure que les boutons */
+    color: #e3d2ba !important;
+    
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    letter-spacing: normal !important;
+    font-size: 1.05rem !important;
+}
+
+/* 2. Le texte fantôme "Ex: Biche..." (La suggestion de l'ordinateur) */
+body[class*="theme-rdr2"] #stock-animal-ghost {
+    color: rgba(227, 210, 186, 0.4) !important; 
+    font-weight: bold !important; /* 💡 CORRECTION : Doit être en gras pour s'aligner parfaitement avec le texte tapé */
+}
+
+/* 3. La vraie case où tu tapes (Transparente pour voir le fantôme en dessous) */
+body[class*="theme-rdr2"] #stock-animal {
+    background-color: transparent !important; 
+    border: 1px solid transparent !important; 
+    color: #e3d2ba !important;
+    
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    letter-spacing: normal !important;
+    font-size: 1.05rem !important;
+    font-weight: bold !important; /* TEXTE TAPÉ EN GRAS */
+}
+
+/* 4. Les éléments à l'intérieur de la liste déroulante */
+body[class*="theme-rdr2"] .custom-dropdown li {
+    background-color: var(--table-header) !important;
+    color: #e3d2ba !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+body[class*="theme-rdr2"] .custom-dropdown li:hover,
+body[class*="theme-rdr2"] .custom-dropdown li:active {
+    background-color: var(--accent-color) !important;
+    color: #fff !important; 
+}
+
+/* 5. Autorise le défilement tactile naturel sur mobile */
+.custom-dropdown {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y; 
+}
+/* --- CASES À COCHER "CROIX" --- */
+body[class*="theme-rdr2"] .data-table input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 22px; 
+    height: 22px;
+    border: 2px solid var(--text-color);
+    background-color: transparent;
+    cursor: pointer;
+    position: relative;
+    border-radius: 2px;
+}
+body[class*="theme-rdr2"] .data-table input[type="checkbox"]:checked::after {
+    content: "✕"; 
+    position: absolute;
+    top: 45%; 
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--text-color);
+    font-size: 22px;
+    font-family: sans-serif;
+    font-weight: bold;
+}
+
+/* --- BARRES DE PROGRESSION UNIFIÉES --- */
+body[class*="theme-rdr2"] .mini-bar-bg,
+body[class*="theme-rdr2"] .progress-bar-bg {
+    background-color: var(--bar-bg) !important;
+}
+
+body[class*="theme-rdr2"] .mini-bar-fill,
+body[class*="theme-rdr2"] .progress-bar-fill {
+    background-color: var(--text-color) !important; 
+}
+
+/* --- BADGES "TERMINÉ" --- */
+body[class*="theme-rdr2"] .badge-done {
+    background-color: transparent !important;
+    border: none !important;
+    color: var(--text-color) !important;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    padding: 0;
+}
+
+body[class*="theme-rdr2"] .row-complete {
+    opacity: 0.4;
+}
+
+body[class*="theme-rdr2"] .data-table small, 
+body[class*="theme-rdr2"] .data-table .text-muted,
+body[class*="theme-rdr2"] .numeric-text,
+body[class*="theme-rdr2"] .data-table td:nth-child(2) span {
+    color: var(--text-muted) !important; 
+}
+
+/* Icônes de Navigation */
+body[class*="theme-rdr2"] .nav-item i {
+    font-size: 1.8rem;
+    font-style: normal;
+    color: var(--text-muted);
+}
+body[class*="theme-rdr2"] .nav-item.active i,
+body[class*="theme-rdr2"] .nav-item.active {
+    color: var(--accent-color); 
+}
+
+/* --- BOUTON RETOUR : DESIGN THEME RDR2 --- */
+body[class*="theme-rdr2"] .undo-btn {
+    background-color: var(--accent-color) !important; /* Le fameux rouge Rockstar */
+    color: #e3d2ba !important; /* L'icône en couleur parchemin */
+    border: 2px solid #e3d2ba !important; /* Une belle bordure nette */
+    box-shadow: 0 8px 16px rgba(0,0,0,0.6) !important;
+}
+
+body[class*="theme-rdr2"] .undo-btn:hover {
+    background-color: var(--accent-hover) !important;
+    box-shadow: 0 12px 24px rgba(0,0,0,0.8) !important;
+}
+
+body[class*="theme-rdr2"] .undo-btn:active {
+    background-color: #5a1010 !important; /* Rouge très sombre quand on clique */
+    border-color: #fff !important;
+}
+
+/* --- BOUTONS PLUS ET MOINS POUR LA QUANTITÉ --- */
+.qty-input-group {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Espace entre la case et les boutons */
+}
+.qty-input-group input {
+    flex: 1; /* La case prend tout l'espace disponible à gauche */
+}
+.qty-btn {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    width: 45px;
+    height: 45px;
+    border-radius: 6px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.1s;
+    user-select: none;
+}
+.qty-btn:active {
+    transform: scale(0.9); /* Petit effet d'enfoncement au clic */
+}
+
+/* Adaptation au thème RDR2 */
+body[class*="theme-rdr2"] .qty-btn {
+    background-color: var(--table-header) !important;
+    border: 1px solid var(--border-color) !important;
+    color: #e3d2ba !important;
+}
+
+/* --- CORRECTION DE LA COULEUR DU CHIFFRE DANS LE STOCK --- */
+/* On force la couleur à être identique à celle du nom de l'animal */
+#table-stock td:nth-child(2) span {
+    color: #ffffff !important; 
+}
+body[class*="theme-rdr2"] .data-table td:nth-child(2) span {
+    color: var(--text-color) !important; 
+}
+
+/* --- CORRECTION DÉFINITIVE : COULEUR IDENTIQUE NOM ET QUANTITÉ (STOCK) --- */
+#table-stock td:nth-child(1),
+#table-stock td:nth-child(1) strong,
+#table-stock td:nth-child(2),
+#table-stock td:nth-child(2) span {
+    color: var(--text-color) !important;
+}
+
+/* ========================================================= */
+/* --- CORRECTION ESTHÉTIQUE STOCK (UNIQUEMENT SUR MOBILE) --- */
+/* ========================================================= */
+
+@media (max-width: 768px) {
+    /* 1. Aérer les en-têtes (Ressource, Quantité, Actions) pour qu'ils ne se chevauchent pas */
+    #table-stock th {
+        padding: 10px 5px !important; 
+        font-size: 0.85rem !important; /* Texte légèrement plus petit pour le mobile */
+        letter-spacing: 0.5px !important;
+        white-space: normal !important; /* Autorise "Actions disponibles" à passer sur 2 lignes si besoin */
+        line-height: 1.2 !important;
+    }
+
+    /* Répartition stricte de l'espace sur le petit écran */
+    #table-stock th:nth-child(1), #table-stock td:nth-child(1) { 
+        width: 32% !important; 
+        padding-left: 12px !important; /* Décolle le texte du bord gauche de l'écran */
+    }
+    #table-stock th:nth-child(2), #table-stock td:nth-child(2) { 
+        width: 20% !important; 
+    }
+    #table-stock th:nth-child(3), #table-stock td:nth-child(3) { 
+        width: 48% !important; 
+        padding-right: 12px !important; /* Décolle les boutons du bord droit de l'écran */
+    }
+
+    /* 2. Affiner fortement l'épaisseur des boutons et les espacer */
+    #table-stock td:nth-child(3) {
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+    }
+
+    #table-stock .action-buttons {
+        gap: 8px !important; /* Ajoute un vrai espace net entre les boutons (ex: Pearson et Jeter) */
+    }
+
+    #table-stock .btn-action {
+        min-height: 30px !important; /* Écrase la hauteur du bouton pour le rendre très fin */
+        padding: 4px 6px !important; /* Réduit le "gras" autour du texte */
+        font-size: 0.75rem !important; /* Adapte la taille du texte à la finesse du bouton */
+        border-radius: 4px !important; 
+        margin: 0 !important;
+    }
+}
+
+/* --- 1. SUPPRIMER LES PETITES FLÈCHES NATIVES DE LA CASE QUANTITÉ --- */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    appearance: none; /* Norme moderne */
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield; /* Pour les anciens Firefox */
+    appearance: textfield; /* Norme moderne (enlève le soulignement de l'éditeur) */
+    text-align: center; /* 💡 Centre le chiffre 1 parfaitement au milieu de la case */
+}
+
+/* --- 2. RAPPROCHER LES BOUTONS D'UN MÊME ANIMAL --- */
+#table-stock .action-buttons {
+    display: flex;
+    flex-direction: column; /* S'assure qu'ils sont empilés de haut en bas sur PC */
+    gap: 4px !important; /* Réduit drastiquement l'espace entre les boutons d'une même case */
+    justify-content: center;
+}
+
+/* --- 3. ESPACER LES DIFFÉRENTS ANIMAUX --- */
+#table-stock td {
+    padding-top: 18px !important; /* Ajoute un beau coussin en haut de chaque ligne d'animal */
+    padding-bottom: 18px !important; /* Ajoute un coussin en bas */
+}
+
+/* ========================================================= */
+/* --- ANIMATION DES CARTES DU DASHBOARD --- */
+/* ========================================================= */
+
+.clickable-card {
+    /* On s'assure que l'animation soit bien fluide */
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease !important;
+}
+
+/* Effet au survol (PC) */
+.clickable-card:hover {
+    /* 1. On annule le changement de couleur (elle garde sa couleur de base) */
+    background-color: var(--card-bg) !important; 
+    
+    /* 2. On booste l'animation : elle se lève plus haut et grossit de 2% */
+    transform: translateY(-6px) scale(1.02) !important; 
+    
+    /* 3. On ajoute une ombre beaucoup plus large et diffuse pour l'effet "3D" */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.7) !important; 
+}
+
+/* Effet quand on clique (PC et Mobile) */
+.clickable-card:active {
+    background-color: var(--card-bg) !important;
+    /* La carte s'enfonce sous le doigt/clic */
+    transform: translateY(2px) scale(0.98) !important; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.9) !important;
+}
+
+/* ========================================================= */
+/* --- CORRECTION BADGE "EN COURS" (RECELEUR) --- */
+/* ========================================================= */
+
+/* 1. Ajoute de l'espace sous le badge pour décoller la ligne du bas */
+.badge-progress {
+    margin-bottom: 10px !important; 
+    display: inline-block;
+}
+
+/* On donne aussi un peu d'air à la cellule entière pour les talismans */
+#table-receleur tr.row-talisman td {
+    padding-bottom: 12px !important;
+}
+
+/* 2. Améliore la lisibilité du orange pour le Thème Clair */
+body.theme-rdr2-light .badge-progress {
+    background-color: rgba(138, 59, 15, 0.15) !important; /* Fond très léger */
+    color: #7a310c !important; /* Orange/Rouille foncé, parfait pour lire sur fond clair */
+    border-color: rgba(138, 59, 15, 0.4) !important;
+}
+
+/* 3. Amélioration douce pour le Thème Sombre (Optionnel mais plus propre) */
+body.theme-rdr2-dark .badge-progress {
+    background-color: rgba(245, 158, 11, 0.1) !important;
+    color: #fbbf24 !important; /* Un orange un peu plus doré pour bien ressortir sur le fond marron foncé */
+    border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+/* --- ESPACE AU-DESSUS DES TALISMANS --- */
+#table-receleur tr.row-talisman {
+    /* Ajoute un espacement avant chaque ligne de talisman */
+    border-top: 15px solid transparent !important; 
+}
+
+/* On ajuste pour que la première ligne du tableau ne soit pas décalée inutilement */
+#table-receleur tbody tr:first-child {
+    border-top: none !important;
+}
+
+/* --- COULEUR DU TEXTE PLACEHOLDER (Recherche rapide) --- */
+.search-bar input::placeholder {
+    color: var(--text-muted) !important;
+    opacity: 0.7;
+}
+
+/* Force la couleur en brun spécifique pour le thème RDR2 si nécessaire */
+body[class*="theme-rdr2"] .search-bar input::placeholder {
+    color: #6b523e !important; 
+}
+
+/* --- CORRECTION DÉFINITIVE COULEUR BARRE DE RECHERCHE --- */
+.search-bar input {
+    color: var(--text-muted) !important; /* Couleur du texte saisi */
+}
+
+.search-bar input::placeholder {
+    color: var(--text-muted) !important; /* Couleur du texte fantôme */
+    opacity: 0.7 !important;
+}
+
+/* Thème RDR2 spécifique (si tu veux un brun plus chaud) */
+body[class*="theme-rdr2"] .search-bar input,
+body[class*="theme-rdr2"] .search-bar input::placeholder {
+    color: #6b523e !important; 
+}
+
+/* --- BOUTON EFFACER LA RECHERCHE --- */
+.search-bar {
+    position: relative;
+}
+.search-bar input {
+    padding-right: 40px !important; /* Laisse de la place pour le X */
+}
+.clear-search-btn {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    z-index: 10;
+}
+.clear-search-btn:hover {
+    color: #fff;
+}
+body[class*="theme-rdr2"] .clear-search-btn:hover {
+    color: var(--text-color);
+}
+
+/* --- PANNEAU DE RÉSUMÉ DE RECHERCHE --- */
+.search-summary-box {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    width: 100%;
+    background-color: var(--card-bg);
+    border: 1px solid var(--accent-color);
+    border-radius: 6px;
+    padding: 12px 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+    z-index: 1000;
+    display: none;
+    font-size: 0.95rem;
+    color: #fff;
+}
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+/* Adaptation pour les thèmes RDR2 */
+body[class*="theme-rdr2"] .search-summary-box {
+    background-color: var(--table-header) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-color) !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+/* --- TIROIR DE DÉTAILS (LISTE DE CHASSE) --- */
+.hunting-breakdown-box {
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 10px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: inset 0 4px 8px rgba(0,0,0,0.2);
+}
+
+body[class*="theme-rdr2"] .hunting-breakdown-box {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-top: 1px dashed var(--border-color);
+}
+
+.breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.breakdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+body[class*="theme-rdr2"] .breakdown-item:hover {
+    background-color: var(--accent-color);
+    color: #fff;
+}
+
+.breakdown-item strong {
+    color: var(--text-color);
+}
+
+/* ========================================================= */
+/* --- CORRECTION ALTERNANCE COULEURS LISTE DE CHASSE --- */
+/* ========================================================= */
+
+/* On force l'alternance en sautant les lignes de tiroirs (4n+1 et 4n+3) */
+body[class*="theme-rdr2"] #table-hunting-list tbody tr.hunting-main-row:nth-child(4n+1) {
+    background-color: transparent !important; 
+}
+
+body[class*="theme-rdr2"] #table-hunting-list tbody tr.hunting-main-row:nth-child(4n+3) {
+    background-color: var(--table-stripe) !important; 
+}
+
+/* On assombrit très légèrement le fond du tiroir quand il s'ouvre pour le détacher du reste */
+body[class*="theme-rdr2"] #table-hunting-list tbody tr.hunting-details-row td {
+    background-color: rgba(20, 15, 10, 0.2) !important; 
+}
+
+/* ========================================================= */
+/* --- CORRECTIONS ERGONOMIQUES MOBILES ET ALIGNEMENTS --- */
+/* ========================================================= */
+
+/* --- 1. MASQUER LA NAVIGATION PENDANT LA RECHERCHE --- */
+@media (max-width: 1024px) {
+    body.search-typing .nav-bar,
+    body.search-typing .undo-btn {
+        display: none !important;
+    }
+}
+
+/* --- 2. AFFINER LES BOUTONS DU STOCK SUR MOBILE --- */
+@media (max-width: 768px) {
+    /* Élargir la colonne Quantité et réduire la colonne Actions */
+    #table-stock th:nth-child(2), 
+    #table-stock td:nth-child(2) { 
+        width: 28% !important; /* Donne plus d'air aux + et - */
+    }
+    #table-stock th:nth-child(3), 
+    #table-stock td:nth-child(3) { 
+        width: 40% !important; /* Compresse la zone des boutons */
+        padding-right: 8px !important; 
+    }
+    
+    /* Boutons beaucoup plus fins pour éviter d'écraser le + */
+    #table-stock .action-buttons { 
+        gap: 4px !important; 
+    }
+    #table-stock .btn-action { 
+        min-height: 28px !important; 
+        padding: 4px !important; 
+        font-size: 0.72rem !important; 
+    }
+}
+
+/* --- 3. ALIGNEMENT PARFAIT DE LA LISTE DE CHASSE (PC & MOBILE) --- */
+
+.hunting-breakdown-box {
+    padding: 0 !important;
+}
+
+.breakdown-item {
+    display: grid !important;
+    /* On calque la grille sur tes 4 colonnes (Animal 35%, Requis 20%, Obtenu 20%, Reste 25%) */
+    grid-template-columns: 35% 20% 20% 25%; 
+    width: 100%;
+    padding: 8px 0 !important;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.breakdown-item:last-child {
+    border-bottom: none;
+}
+
+/* --- COULEUR BRUNE ET TEXTE NORMAL (PC & MOBILE) --- */
+.bd-value,
+.bd-value strong {
+    color: var(--text-muted) !important; /* Le même brun que le reste */
+    font-weight: normal !important; /* Enlève l'effet gras/brillant */
+}
+
+/* --- MODE PC (Structure inchangée) --- */
+.bd-label {
+    grid-column: 1 / 4; 
+    text-align: left;
+    padding-left: 20px;
+}
+.bd-value {
+    grid-column: 4; /* Reste tout à droite, sous "Reste à chasser" */
+    text-align: center;
+}
+
+/* --- MODE MOBILE (Aligné sous "Total Obtenu") --- */
+@media (max-width: 768px) {
+    .bd-label {
+        grid-column: 1 / 3; /* Le texte s'arrête avant la colonne du 10 */
+        text-align: left !important;
+        padding-left: 10px !important;
+        padding-right: 0 !important;
+        font-size: 0.85rem;
+    }
+    .bd-value {
+        grid-column: 3; /* Le chiffre se place DANS la colonne 3 ("Total Obtenu") */
+        text-align: center !important; /* Centré parfaitement sous le 10 */
+        padding: 0 !important;
+    }
+}
+
+/* ========================================================= */
+/* --- CORRECTIONS FINALES (BOUTONS, BARRE NAV, CHASSE)  --- */
+/* ========================================================= */
+
+/* 1. AJUSTER LE BOUTON RETOUR SUR MOBILE */
+@media (max-width: 768px) {
+    .undo-btn {
+        bottom: 90px !important; /* Légèrement décollé de la barre de sélection */
+        right: 15px !important;
+    }
+}
+
+/* 2. RÉDUIRE L'ÉPAISSEUR DE LA BARRE DE NAVIGATION EN BAS (Mobile) */
+@media (max-width: 768px) {
+    #main-nav {
+        padding: 5px 10px !important; /* Retire l'espace vide en haut et en bas */
+        height: auto !important;
+        min-height: 50px !important;
+    }
+    .nav-item {
+        padding: 2px !important; 
+        gap: 2px !important; /* Rapproche le texte de l'icône */
+    }
+    .nav-item i {
+        font-size: 1.2rem !important; /* Icônes très légèrement plus petites */
+    }
+    .nav-item span {
+        font-size: 0.65rem !important; /* Texte légèrement plus petit */
+    }
+}
+
+/* 3. COULEUR IDENTIQUE ET ALIGNEMENT PARFAIT DU TIROIR DE CHASSE */
+.hunting-breakdown-box {
+    padding: 0 !important;
+}
+.breakdown-item {
+    display: grid !important;
+    grid-template-columns: 35% 20% 20% 25% !important; /* Vos 4 colonnes */
+    width: 100% !important;
+    padding: 8px 0 !important;
+    align-items: center;
+}
+
+/* 👇 LE SECRET EST ICI : On cible le thème RDR2 de force pour écraser le texte noir ! */
+body[class*="theme-rdr2"] .data-table td .breakdown-item,
+body[class*="theme-rdr2"] .data-table td .breakdown-item span,
+body[class*="theme-rdr2"] .data-table td .breakdown-item strong,
+body[class*="theme-rdr2"] .data-table td .breakdown-item i {
+    color: var(--text-muted) !important; /* Force le brun clair partout */
+    font-weight: normal !important; /* Supprime l'effet gras/noir du chiffre ! */
+}
+
+/* Alignement PC */
+.breakdown-item span {
+    grid-column: 1 / 4; 
+    text-align: left;
+    padding-left: 20px;
+}
+.breakdown-item strong {
+    grid-column: 4; 
+    text-align: center;
+}
+
+/* Alignement Mobile */
+@media (max-width: 768px) {
+    .breakdown-item span {
+        grid-column: 1 / 3 !important; /* S'arrête avant la colonne du 10 */
+        padding-left: 10px !important;
+        font-size: 0.85rem;
+    }
+    .breakdown-item strong {
+        grid-column: 3 !important; /* Force le chiffre à se mettre PILE SOUS "Total Obtenu" */
+        text-align: center !important;
+    }
+}
+/* 4. RÉDUIRE ET UNIFORMISER LES BOUTONS DU STOCK */
+@media (max-width: 768px) {
+    #table-stock th:nth-child(2), 
+    #table-stock td:nth-child(2) { 
+        width: 35% !important; 
+        padding-right: 15px !important;
+    }
+    #table-stock th:nth-child(3), 
+    #table-stock td:nth-child(3) { 
+        width: 35% !important; 
+    }
+    #table-stock .action-buttons { 
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-end !important;
+        gap: 4px !important;
+    }
+    #table-stock .btn-action { 
+        width: 95px !important; /* Force la même largeur (longueur) pour TOUS les boutons */
+        min-width: 95px !important; 
+        min-height: 26px !important; 
+        padding: 4px 8px !important; 
+        font-size: 0.75rem !important; 
+        margin: 0 !important;
+        text-align: center !important; /* Centre le texte proprement */
+        justify-content: center !important;
+    }
+}
+
+/* ========================================================= */
+/* --- OPTIMISATIONS MOBILES, IPAD ET MODE PAYSAGE       --- */
+/* ========================================================= */
+
+/* 1. On applique les règles mobiles jusqu'à 1024px pour inclure les iPad */
+@media (max-width: 1024px) {
+    /* Bouton Retour */
+    .undo-btn {
+        bottom: 90px !important; 
+        right: 15px !important;
+    }
+
+    /* Barre de sélection en bas */
+    #main-nav {
+        padding: 5px 10px !important;
+        min-height: 50px !important;
+        height: auto !important;
+    }
+    .nav-item { padding: 2px !important; gap: 2px !important; }
+    .nav-item i { font-size: 1.2rem !important; }
+    .nav-item span { font-size: 0.65rem !important; }
+
+    /* Tiroir de chasse */
+    .breakdown-item span {
+        grid-column: 1 / 3 !important;
+        padding-left: 10px !important;
+        font-size: 0.85rem;
+    }
+    .breakdown-item strong {
+        grid-column: 3 !important;
+        text-align: center !important;
+    }
+
+    /* Boutons du stock uniformisés */
+    #table-stock th:nth-child(2), #table-stock td:nth-child(2) { width: 35% !important; padding-right: 15px !important; }
+    #table-stock th:nth-child(3), #table-stock td:nth-child(3) { width: 35% !important; }
+    #table-stock .action-buttons {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-end !important;
+        gap: 4px !important;
+    }
+    #table-stock .btn-action {
+        width: 95px !important;
+        min-width: 95px !important;
+        min-height: 26px !important;
+        padding: 4px 8px !important;
+        font-size: 0.75rem !important;
+        margin: 0 !important;
+        text-align: center !important;
+        justify-content: center !important;
+    }
+}
+
+/* 2. MODE PAYSAGE (Téléphone ou tablette à l'horizontale) */
+@media (max-height: 600px) and (orientation: landscape) {
+    /* ✨ L'en-tête ne reste plus bloqué en haut, il monte avec la page ! ✨ */
+    header {
+        position: static !important; 
+    }
+    /* Barre de sélection affinée pour gagner de la place */
+    #main-nav {
+        min-height: 38px !important;
+        padding: 2px 10px !important;
+    }
+    .nav-item i { font-size: 1rem !important; }
+    .nav-item span { display: none !important; } /* On cache les textes du menu pour alléger */
+    .undo-btn { bottom: 50px !important; } /* On redescend le bouton retour */
+}
+
+/* ========================================================= */
+/* --- 5. AUGMENTER LE CONTRASTE DES TÂCHES TERMINÉES    --- */
+/* ========================================================= */
+
+body[class*="theme-rdr2"] tr.row-complete { opacity: 0.85 !important; }
+body[class*="theme-rdr2"] tr.row-complete td { background-color: rgba(0, 0, 0, 0.04) !important; }
+
+/* Texte grisé et assombri */
+body[class*="theme-rdr2"] tr.row-complete td, 
+body[class*="theme-rdr2"] tr.row-complete td span, 
+body[class*="theme-rdr2"] tr.row-complete td strong,
+body[class*="theme-rdr2"] tr.row-complete td div {
+    color: rgba(0, 0, 0, 0.35) !important; 
+}
+
+/* Trait de rature sur Colonne 1 et 2 par défaut */
+body[class*="theme-rdr2"] tr.row-complete td:nth-child(1),
+body[class*="theme-rdr2"] tr.row-complete td:nth-child(2) {
+    text-decoration: line-through !important;
+    text-decoration-color: rgba(0, 0, 0, 0.6) !important;
+    text-decoration-thickness: 2px !important;
+}
+
+/* 🎯 EXCEPTIONS DU TRAIT DE RATURE */
+/* 1. On NE RAYE PAS le chiffre "Total Requis" (Colonne 2 de la liste de chasse) */
+body[class*="theme-rdr2"] #table-hunting-list tr.row-complete td:nth-child(2) {
+    text-decoration: none !important;
+}
+/* 2. On protège le conteneur global du tiroir pour éviter un immense trait parasite */
+body[class*="theme-rdr2"] tr.hunting-details-row td {
+    text-decoration: none !important;
+}
+/* 3. On ne raye jamais les colonnes 3 et 4 (Chiffres de Reste et Obtenu) */
+body[class*="theme-rdr2"] tr.row-complete td:nth-child(3),
+body[class*="theme-rdr2"] tr.row-complete td:nth-child(4),
+body[class*="theme-rdr2"] .breakdown-item strong {
+    text-decoration: none !important;
+}
+
+/* Rature spécifique pour les labels du tiroir de chasse (Camp de base, Receleur...) */
+body[class*="theme-rdr2"] .breakdown-item span {
+    text-decoration: line-through !important;
+    text-decoration-color: rgba(0, 0, 0, 0.6) !important;
+    text-decoration-thickness: 2px !important;
+}
+
+/* Barre de progression désaturée */
+body[class*="theme-rdr2"] tr.row-complete .mini-bar-fill {
+    filter: grayscale(100%) !important;
+    opacity: 0.35 !important;
+}
+
+/* ========================================================= */
+/* --- CARTE INTERACTIVE (LEAFLET) --- */
+/* ========================================================= */
+
+#map-container {
+    width: 100%;
+    height: calc(100dvh - 220px); 
+    min-height: 460px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background-color: transparent; 
+    z-index: 1;
+}
+
+/* 🎯 ADAPTATION TACTILES (IPAD & MOBILE) */
+@media (max-width: 1400px) {
+    #map-container:not(.map-fullscreen) {
+        width: 88% !important;
+        margin: 0 auto !important;
+        height: auto !important;
+        aspect-ratio: 8000 / 6211 !important;
+        min-height: unset !important;
+    }
+    #map-container:not(.map-fullscreen) .leaflet-control-zoom {
+        display: none !important;
+    }
+}
+
+/* 🎯 CONFIGURATION PLEIN ÉCRAN FLUIDE */
+#map-container.map-fullscreen {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    z-index: 10000 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background-color: var(--bg-color) !important;
+}
+
+/* 👆 INDICATEUR DE MAIN ANIMÉE AU CENTRE */
+#map-hint-hand {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 42px;
+    z-index: 999;
+    pointer-events: none;
+    animation: rdr2HandTap 1.5s infinite ease-in-out;
+}
+
+@keyframes rdr2HandTap {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
+    50% { transform: translate(-50%, -50%) scale(0.75) translateY(4px); opacity: 0.3; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
+}
+
+#map-container.map-fullscreen ~ #map-hint-hand { display: none !important; }
+@media (min-width: 1401px) { #map-hint-hand { display: none !important; } }
+
+/* ✕ 🎯 BOUTON DE FERMETURE : STRICTEMENT VERROUILLÉ EN HAUT À DROITE PARTOUT */
+#map-close-btn {
+    display: none; 
+    position: fixed; 
+    top: 20px !important; 
+    right: 20px !important; 
+    bottom: unset !important;
+    left: unset !important;
+    z-index: 10005; 
+    background-color: rgba(0, 0, 0, 0.9); 
+    color: #e3d2ba; 
+    border: 2px solid #e3d2ba; 
+    border-radius: 50%; 
+    width: 46px; 
+    height: 46px; 
+    font-size: 20px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    align-items: center; 
+    justify-content: center; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.7);
+}
+
+/* --- DESIGN DES BOUTONS DE ZOOM (+ / -) --- */
+.leaflet-bar {
+    border: 2px solid var(--border-color) !important;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.6) !important;
+    border-radius: 8px !important;
+    overflow: hidden;
+    display: flex !important;
+    flex-direction: column !important; 
+}
+
+.leaflet-bar a,
+body[class*="theme-rdr2"] .leaflet-bar a {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+    font-family: Arial, sans-serif !important;
+    font-size: 24px !important;
+    font-weight: bold !important;
+    width: 42px !important;
+    height: 42px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    transition: background-color 0.2s, color 0.2s !important;
+}
+
+.leaflet-bar a:last-child { border-bottom: none !important; }
+.leaflet-bar a:hover, .leaflet-bar a:active { background-color: var(--accent-color) !important; color: #fff !important; }
+
+/* ========================================================= */
+/* --- DESIGN DES BARRES DE NAVIGATION (ÉPAISSEURS UNIQUES) --- */
+/* ========================================================= */
+
+/* 🖥️ 1. ORDINATEUR (Grand Écran) */
+@media (min-width: 1401px) {
+    nav, .nav-bar, .bottom-menu, footer, .nav-item { padding-top: 6px !important; padding-bottom: 6px !important; }
+    .nav-item i { font-size: 1.3rem !important; }
+    .nav-item span { font-size: 0.7rem !important; }
+}
+
+/* 🍏 2. IPAD EN MODE PORTRAIT (Vertical) */
+@media (min-width: 769px) and (max-width: 1400px) and (orientation: portrait) {
+    nav, .nav-bar, .bottom-menu, footer { padding-top: 14px !important; padding-bottom: 14px !important; }
+    .nav-item i { font-size: 1.6rem !important; }
+    .nav-item span { font-size: 0.8rem !important; }
+}
+
+/* 🍏 3. IPAD EN MODE LANDSCAPE (Horizontal) */
+@media (min-width: 769px) and (max-width: 1400px) and (orientation: landscape) {
+    nav, .nav-bar, .bottom-menu, footer { padding-top: 8px !important; padding-bottom: 8px !important; }
+    .nav-item i { font-size: 1.3rem !important; }
+    .nav-item span { font-size: 0.7rem !important; }
+}
+
+/* 📱 4. MOBILE EN MODE PORTRAIT (Vertical) -> Épaissie comme demandé */
+@media (max-width: 768px) and (orientation: portrait) {
+    nav, .nav-bar, .bottom-menu, footer { padding-top: 16px !important; padding-bottom: 16px !important; }
+    .nav-item i { font-size: 1.45rem !important; }
+    .nav-item span { font-size: 0.78rem !important; }
+}
+
+/* 📱 5. MOBILE EN MODE LANDSCAPE (Horizontal) -> Épaissie significativement pour afficher le texte */
+@media (max-width: 950px) and (orientation: landscape) {
+    nav, .nav-bar, .bottom-menu, footer { padding-top: 16px !important; padding-bottom: 16px !important; }
+    .nav-item i { font-size: 1.35rem !important; }
+    .nav-item span { font-size: 0.8rem !important; display: block !important; }
+}
+
+/* ========================================================= */
+/* --- CORRECTION DU BOUTON ANNULER (Z-INDEX & POSITION) --- */
+/* ========================================================= */
+
+/* 1. On s'assure qu'il passe TOUJOURS au-dessus de la barre de nav (z-index 105 vs 100) */
+.undo-btn {
+    z-index: 105 !important;
+}
+
+/* 🖥️ ORDINATEUR & GRANDS ÉCRANS (> 1300px) */
+@media (min-width: 1300px) {
+    .undo-btn {
+        /* On calcule la position pour le coller juste à droite de ta barre de 1200px */
+        right: calc(50% - 670px) !important;
+        /* On le descend pour l'aligner joliment avec la barre de sélection (qui est à 15px du bas) */
+        bottom: 25px !important; 
+    }
+}
+
+/* 💻 PETITS ORDINATEURS PORTABLES (1025px à 1299px) */
+@media (min-width: 1025px) and (max-width: 1299px) {
+    .undo-btn {
+        /* S'il n'y a pas la place à côté de la barre, on le met au-dessus à droite */
+        right: 25px !important;
+        bottom: 115px !important; 
+    }
+}
+
+/* 🍏 IPAD EN MODE PAYSAGE (Horizontal) - Baisse le bouton trop haut */
+@media (min-width: 769px) and (max-width: 1400px) and (orientation: landscape) {
+    .undo-btn {
+        bottom: 105px !important; 
+        right: 30px !important;
+    }
+}
+
+/* 🍏 IPAD EN MODE PORTRAIT (Vertical) - Décolle le bouton de la barre */
+@media (min-width: 769px) and (max-width: 1400px) and (orientation: portrait) {
+    .undo-btn {
+        bottom: 115px !important; 
+        right: 25px !important;
+    }
+}
+
+/* 📱 MOBILE EN MODE PORTRAIT (Vertical) - Décolle le bouton de la barre */
+@media (max-width: 768px) and (orientation: portrait) {
+    .undo-btn {
+        bottom: 105px !important; 
+        right: 15px !important;
+    }
+}
+
+/* 📱 MOBILE EN MODE PAYSAGE (Horizontal) - On le monte plus haut pour libérer la barre */
+@media (max-height: 600px) and (orientation: landscape) {
+    .undo-btn {
+        bottom: 95px !important; /* Augmenté à 95px pour passer nettement au-dessus */
+        right: 20px !important;
+    }
+}
+
+/* ========================================================= */
+/* --- CORRECTION COULEUR IPAD (CHAMP STOCK DÉSACTIVÉ) --- */
+/* ========================================================= */
+
+/* Safari force une transparence sur les champs "disabled". 
+   On bloque cette transparence pour avoir exactement la même couleur que la quantité. */
+#stock-animal-ghost {
+    opacity: 1 !important;
+    -webkit-opacity: 1 !important;
+    -webkit-text-fill-color: #777; /* Force la couleur du texte sur iOS (Thème Sombre par défaut) */
+}
+
+/* Force la couleur du texte fantôme spécifiquement pour les thèmes RDR2 sur iPad */
+body[class*="theme-rdr2"] #stock-animal-ghost {
+    -webkit-text-fill-color: rgba(227, 210, 186, 0.4) !important; 
+}
+
+/* On s'assure que les champs ont EXACTEMENT la même forme et qu'Apple n'ajoute pas d'ombres natives */
+#stock-animal-ghost, 
+#stock-animal, 
+#stock-qty {
+    border-radius: 4px !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+}
+
+/* --- COULEUR DES BOUTONS DU MENU PARAMÈTRES (S'ADAPTE AUX THÈMES) --- */
+body[class*="theme-rdr2"] #settings-panel .btn-dark {
+    background-color: var(--table-header) !important; /* Prend le marron très foncé / noir du thème */
+    color: #e3d2ba !important; /* Texte en couleur parchemin clair */
+    border: 1px solid var(--border-color) !important;
+}
+
+/* ========================================================= */
+/* --- CORRECTION MENU PARAMÈTRES (THÈME RDR2 SOMBRE) --- */
+/* ========================================================= */
+
+/* 1. On applique le fond clair de la page au menu */
+body.theme-rdr2-dark #settings-panel.settings-overlay {
+    background-color: var(--bg-color) !important; 
+    border: 2px solid #2b211b !important; /* Bordure très foncée pour bien délimiter la fenêtre */
+}
+
+/* 2. On fonce le titre "Paramètres" pour qu'il soit lisible */
+body.theme-rdr2-dark #settings-panel .settings-header h3 {
+    color: #2b211b !important; 
+}
+
+/* 3. On fonce le texte d'explication */
+body.theme-rdr2-dark #settings-panel .settings-desc {
+    color: #4a3a2e !important; 
+    font-weight: 600 !important;
+}
+
+/* ========================================================= */
+/* --- NOUVEAU DESIGN : BARRE DE NAVIGATION ÉPURÉE --- */
+/* ========================================================= */
+
+/* 1. On retire le fond pour l'élément actif, on le met en gras et on le soulève */
+.nav-item.active,
+body[class*="theme-rdr2"] .nav-item.active {
+    background-color: transparent !important;
+    font-weight: bold !important;
+    
+    /* L'effet magique : on le monte de 8px et on l'agrandit de 5% pour bien le détacher */
+    transform: translateY(-8px) scale(1.05) !important; 
+}
+
+/* 2. Les éléments inactifs restent normaux, alignés en bas et sans fond */
+.nav-item {
+    font-weight: normal !important;
+    background-color: transparent !important;
+}
+
+/* 3. On ajuste l'effet de survol (souris sur PC) pour qu'il soit subtil */
+.nav-item:hover {
+    background-color: transparent !important; 
+    transform: translateY(-4px) scale(1.02); /* Se lève juste un petit peu */
+}
+
+/* 4. L'élément actif reste bien verrouillé en haut même si on le survole */
+.nav-item.active:hover {
+    transform: translateY(-8px) scale(1.05) !important;
+}
+
+/* ========================================================= */
+/* --- ANIMATION DE L'ICÔNE MAISON (EN-TÊTE) --- */
+/* ========================================================= */
+
+/* 1. On prépare l'animation fluide sur l'icône existante */
+.header-home-icon {
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important;
+    transform-origin: center; /* S'assure que l'icône grossit depuis son centre */
+}
+
+/* 2. Effet au survol (Pour le PC) */
+.header-home-icon:hover {
+    transform: scale(1.15) rotate(-8deg); /* Grossit légèrement et penche un peu à gauche */
+    color: var(--accent-hover) !important; /* Prend la couleur de ton thème (rouge vif/bordeaux) */
+}
+
+/* 3. Effet au clic ou au toucher (PC et Mobile) */
+.header-home-icon:active {
+    transform: scale(0.85); /* S'écrase sous le doigt */
+    opacity: 0.8; /* Devient très légèrement transparente au clic */
+}
+
+/* ========================================================= */
+/* --- CORRECTION BARRE DE RECHERCHE (THÈME CLAIR SEUL) --- */
+/* ========================================================= */
+
+body.theme-rdr2-light #global-search {
+    /* Un fond laiteux / blanc transparent pour bien la détacher du marron/beige */
+    background-color: rgba(255, 255, 255, 0.45) !important; 
+    border: 1px solid rgba(42, 31, 24, 0.3) !important; 
+    color: #2a1f18 !important; 
+}
+
+
+/* ========================================================= */
+/* --- BARRES DE DÉFILEMENT MODERNES (LISTES ET APP) --- */
+/* ========================================================= */
+
+/* Pour Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-color) transparent;
+}
+
+/* Pour Chrome, Safari, Edge et navigateurs mobiles (Webkit) */
+::-webkit-scrollbar {
+    width: 6px; /* Barre très fine et moderne */
+    height: 6px; /* Utile pour le swipe horizontal des tableaux */
+}
+
+/* Le "rail" (le fond de la barre) */
+::-webkit-scrollbar-track {
+    background: transparent; /* On le rend invisible pour alléger le design */
+}
+
+/* Le "curseur" (la partie qui bouge) */
+::-webkit-scrollbar-thumb {
+    background: var(--accent-color); /* Prend le rouge de ton thème */
+    border-radius: 10px; /* Bords bien ronds */
+}
+
+/* Le curseur quand on passe la souris dessus */
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-hover); 
+}
+
+/* ❌ C'est ceci qui détruit les vieilles flèches haut/bas ! ❌ */
+::-webkit-scrollbar-button {
+    display: none !important; 
+}
+
+/* ========================================================= */
+/* --- PERSONNALISATION LEAFLET (THÈME RDR2) --- */
+/* ========================================================= */
+
+/* 1. Fond assorti aux boutons + et - (Beige foncé) */
+.leaflet-control-layers,
+.leaflet-control-layers-expanded {
+    background-color: #c7af8b !important; /* Le beige plus foncé et "cartonné" de tes boutons */
+    border: 2px solid #a38a66 !important; /* Bordure adoucie pour coller au style */
+    border-radius: 5px !important;
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3) !important; /* Ombre identique à celle du zoom */
+}
+
+/* Le fond du petit bouton carré avant ouverture */
+.leaflet-control-layers-toggle {
+    background-color: transparent !important;
+}
+
+/* 2. Le style du texte (Police RDR2) */
+.leaflet-control-layers-list {
+    color: #2a1f18 !important; 
+    font-family: inherit !important; 
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important; 
+    letter-spacing: 0.5px !important;
+    line-height: 2 !important; 
+}
+
+/* 3. ASTUCE MAGIQUE : Transforme les emojis en logos noirs simples */
+.map-icon {
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 14px;
+    filter: grayscale(100%) brightness(0%); /* Aspire la couleur et force le noir absolu */
+    opacity: 0.75; /* Donne un effet "encre imprimée" sur le papier */
+    vertical-align: middle;
+}
+
+/* ========================================================= */
+/* --- LE SYSTÈME "BARRÉ / PAS BARRÉ" (SANS CASES) --- */
+/* ========================================================= */
+
+/* 4. DISPARITION TOTALE des cases à cocher */
+.leaflet-control-layers-selector {
+    display: none !important;
+}
+
+/* 5. Style du texte normal (Filtre activé) */
+.leaflet-control-layers-selector + span {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-block;
+    padding-left: 2px;
+}
+
+/* 6. LE TEXTE BARRÉ (Quand le filtre est désactivé) */
+.leaflet-control-layers-selector:not(:checked) + span {
+    text-decoration: line-through;
+    text-decoration-color: #8b0000; /* Une belle rature rouge bordeaux */
+    text-decoration-thickness: 2px;
+    opacity: 0.4; /* Grise l'ensemble de la ligne pour montrer que c'est inactif */
+}
+
+/* Effet au survol de la souris */
+.leaflet-control-layers label:hover span {
+    color: #8b0000 !important;
+}
+
+
+
+/* ========================================================= */
+/* --- DESIGN APPLICATIF : CARTE FULL-BLEED (PLEIN ÉCRAN) --- */
+/* ========================================================= */
+
+/* 1. La carte prend tout l'espace disponible sous l'en-tête */
+#view-map.active {
+    display: block !important;
+    position: fixed !important;
+    top: 95px !important; /* Hauteur de l'en-tête sur PC */
+    left: 0 !important;
+    width: 100vw !important;
+    height: calc(100vh - 95px) !important; /* Descend tout en bas */
+    z-index: 10 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background-color: #d2bf9f; /* Couleur parchemin au cas où la carte charge */
+}
+
+/* Ajustement de la hauteur pour les mobiles/tablettes */
+@media (max-width: 768px) {
+    #view-map.active {
+        top: 130px !important; /* L'en-tête est un peu plus haut sur mobile avec la barre de recherche */
+        height: calc(100vh - 130px) !important;
+    }
+}
+
+/* Le conteneur Leaflet remplit cet espace */
+#map-container {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* 2. On s'assure que la barre de navigation du bas reste bien AU-DESSUS de la carte */
+.nav-bar {
+    z-index: 9999 !important;
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.5) !important; /* Belle ombre projetée sur la carte */
+}
+
+/* 3. Positionnement intelligent des boutons Leaflet (Filtres et Zoom) */
+
+/* Par défaut (Mobile et iPad) : Juste au-dessus de la barre de navigation */
+.leaflet-bottom {
+    bottom: 105px !important; 
+    transition: all 0.3s ease;
+}
+
+/* Sur PC (Écrans larges > 1250px) : Sur le même axe horizontal que la barre de sélection ! */
+@media (min-width: 1250px) {
+    .leaflet-bottom {
+        bottom: 22px !important; /* S'aligne parfaitement avec la hauteur de ta barre de nav */
+    }
+    .leaflet-left {
+        left: 25px !important; /* Repousse le bouton des filtres à l'extrême gauche */
+    }
+    .leaflet-right {
+        right: 25px !important; /* Repousse les boutons de zoom à l'extrême droite */
+    }
+}
+
+/* ========================================================= */
+/* --- ILLUSION D'OPTIQUE : FOND DE CARTE INFINI --- */
+/* ========================================================= */
+.leaflet-container {
+    background-color: #dec29b !important; 
+}
+
+/* ========================================================= */
+/* --- CORRECTION FINALE : CARTE FULL-BLEED ET BOUTONS --- */
+/* ========================================================= */
+
+/* 1. Nettoyage absolu du conteneur Leaflet */
+#map-container,
+#map-container:not(.map-fullscreen) {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    margin: 0 !important;
+    aspect-ratio: auto !important; 
+    border: none !important;
+    border-radius: 0 !important;
+}
+
+/* 2. Taille de la carte (Hauteur dynamique DVH pour corriger les bugs mobiles) */
+#view-map.active {
+    display: block !important;
+    position: fixed !important;
+    left: 0 !important;
+    width: 100vw !important;
+    z-index: 10 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    /* Règlage PC & iPad */
+    top: 85px !important; 
+    height: calc(100dvh - 85px) !important; 
+}
+
+@media (max-width: 768px) {
+    #view-map.active {
+        /* Règlage Mobile (L'en-tête est plus fin car la recherche est cachée) */
+        top: 72px !important; 
+        height: calc(100dvh - 72px) !important;
+    }
+}
+
+/* 3. Forcer la réapparition des boutons de zoom */
+#map-container .leaflet-control-zoom,
+#map-container:not(.map-fullscreen) .leaflet-control-zoom {
+    display: flex !important; 
+}
+
+/* 4. Positionner les boutons fermement au-dessus de la barre de navigation */
+.leaflet-control-container .leaflet-bottom {
+    bottom: 130px !important; /* Sécurité augmentée pour Mobile/iPad */
+    transition: bottom 0.3s ease;
+}
+
+/* 5. L'alignement parfait UNIQUEMENT sur PC (Écrans larges > 1250px) */
+@media (min-width: 1250px) {
+    .leaflet-control-container .leaflet-bottom {
+        bottom: 105px !important; /* CORRECTION : On le remonte au-dessus de la barre de nav ! */
+    }
+    .leaflet-control-container .leaflet-left {
+        left: 25px !important; /* Repousse à l'extrême gauche */
+    }
+    .leaflet-control-container .leaflet-right {
+        right: 25px !important; /* Repousse à l'extrême droite */
+    }
+}
+
+/* 6. On empêche le menu des filtres d'être trop grand et de sortir de l'écran */
+.leaflet-control-layers-list {
+    max-height: 45vh !important; /* Ne dépasse jamais la moitié de l'écran */
+    overflow-y: auto !important; /* Ajoute un ascenseur (scroll) si la liste est longue */
+}
+
+/* ========================================================= */
+/* --- DESIGN DES MARQUEURS SUR LA CARTE (ROUGE RDR2) --- */
+/* ========================================================= */
+.rdr2-marker-animal {
+    background-color: #8a1a19 !important; /* 🔴 Rouge bordeaux du thème RDR2 Clair */
+    border: 2px solid #e3d2ba !important;   /* Bordure parchemin clair pour détacher le rond */
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    
+    /* On remonte un tout petit peu l'opacité à 0.75 (75%) pour que le rouge claque bien */
+    opacity: 0.75 !important; 
+}
+
+/* ========================================================= */
+/* --- STYLE DES NOMS D'ANIMAUX SUR LA CARTE (ROUGE RDR2) --- */
+/* ========================================================= */
+.leaflet-tooltip.rdr2-marker-label {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #8a1a19 !important;            /* 🔴 Texte en rouge bordeaux assorti au rond */
+    font-family: 'Bebas Neue', sans-serif !important;
+    font-size: 14px !important;           /* Augmenté d'un pixel pour améliorer la lecture */
+    letter-spacing: 1px !important;
+    font-weight: bold !important;         /* Un peu plus épais pour s'imposer sur la carte */
+    white-space: nowrap;
+    padding: 0 !important;
+    
+    /* Petite ombre portée noire très subtile derrière les lettres pour que le texte */
+    /* reste parfaitement lisible même si le dessin de la carte en dessous est sombre */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4); 
+}
+
+/* On supprime la petite flèche blanche que Leaflet ajoute sur le côté */
+.leaflet-tooltip-right.rdr2-marker-label::before {
+    border-right-color: transparent !important;
+}
+
+/* ========================================================= */
+/* --- DESIGN DES POISSONS LÉGENDAIRES (BLEU ENCRE) --- */
+/* ========================================================= */
+.rdr2-marker-fish {
+    background-color: #1c3d5a !important; /* 🔵 Bleu encre profond pour l'eau */
+    border: 2px solid #e3d2ba !important;   /* Bordure parchemin clair */
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    opacity: 0.75 !important; 
+}
+
+.leaflet-tooltip.rdr2-fish-label {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #1c3d5a !important;            /* 🔵 Texte en bleu assorti au rond */
+    font-family: 'Bebas Neue', sans-serif !important;
+    font-size: 14px !important;
+    letter-spacing: 1px !important;
+    font-weight: bold !important;
+    white-space: nowrap;
+    padding: 0 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); 
+}
+
+.leaflet-tooltip-right.rdr2-fish-label::before {
+    border-right-color: transparent !important;
+}
+
+/* ========================================================= */
+/* --- DESIGN DES OS DE DINOSAURES (BLANC ET NOIR) --- */
+/* ========================================================= */
+
+/* 1. Le conteneur invisible géré par Leaflet */
+.rdr2-pin-container {
+    background: transparent !important;
+    border: none !important;
+}
+
+/* 2. La forme de Punaise (Os de dinosaure) */
+.rdr2-pin-bone {
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    width: 18px;
+    height: 18px;
+    background-color: #ffffff;    /* ⚪ Blanc os */
+    border: 2px solid #1a1a1a;    /* ⚫ Bordure noire */
+    border-radius: 50% 50% 50% 0; /* ✨ L'ASTUCE : 3 coins ronds, 1 coin pointu */
+    transform: rotate(-45deg);    /* Tourne le carré pour pointer vers le bas */
+    box-shadow: -2px 2px 4px rgba(0,0,0,0.6); /* L'ombre portée */
+    opacity: 0.50;
+}
+
+.leaflet-tooltip.rdr2-bone-label {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #1a1a1a !important;            /* ⚫ Texte en noir */
+    font-family: 'Bebas Neue', sans-serif !important;
+    font-size: 14px !important;
+    letter-spacing: 1px !important;
+    font-weight: bold !important;
+    white-space: nowrap;
+    padding: 0 !important;
+    /* Ombre claire pour que le texte noir reste lisible même sur un fond sombre de la carte */
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.6); 
+}
+
+.leaflet-tooltip-right.rdr2-bone-label::before {
+    border-right-color: transparent !important;
+}
+
+/* ========================================================= */
+/* --- DESIGN DES TRÉSORS (DIAMANT OR) --- */
+/* ========================================================= */
+
+.rdr2-diamond-treasure {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 16px;
+    height: 16px;
+    background-color: #d4af37;    /* 🟡 Belle couleur Or métallique */
+    border: 2px solid #f4f2f2;    /* ⚫ Bordure noire encre */
+    transform: rotate(45deg);     /* ✨ L'ASTUCE : Fait pivoter le carré pour créer le diamant */
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.6); /* Ombre adaptée à la rotation */
+    opacity: 0.20;
+}
+
+/* ========================================================= */
+/* --- DESIGN DES ATTRAPE-RÊVES (MARRON BOIS) --- */
+/* ========================================================= */
+.leaflet-tooltip.rdr2-dream-label {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #5c3a21 !important; /* 🟤 Marron bois */
+    font-family: 'Bebas Neue', sans-serif !important;
+    font-size: 14px !important;
+    letter-spacing: 1px !important;
+    font-weight: bold !important;
+    white-space: nowrap;
+    padding: 0 !important;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.6); 
+}
+
+.leaflet-tooltip-right.rdr2-dream-label::before {
+    border-right-color: transparent !important;
+}
+
+/* ========================================================= */
+/* --- SYSTÈME D'APPARITION DYNAMIQUE (POINTS VERTS) --- */
+/* ========================================================= */
+
+/* 1. Design des petits points de spawn (Vert vif blindé) */
+.rdr2-spawn-dot {
+    background-color: #4CAF50 !important; 
+    border: 2px solid #1a1a1a !important;
+    border-radius: 50% !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.8) !important;
+    opacity: 1 !important;
+    width: 12px !important;
+    height: 12px !important;
+}
+
+/* 2. Le "Mode Masqué" : quand la carte a cette classe, on cache tout... */
+.map-hiding-mode .leaflet-marker-icon,
+.map-hiding-mode .leaflet-tooltip {
+    opacity: 0 !important;
+    pointer-events: none !important; /* Rend les autres points incliquables */
+    transition: opacity 0.3s ease;   /* Joli effet de fondu */
+}
+
+/* 3. ... SAUF le diamant sur lequel on a cliqué et les petits points verts ! */
+.map-hiding-mode .leaflet-marker-icon.rdr2-special-toggle,
+.map-hiding-mode .leaflet-marker-icon.rdr2-spawn-dot {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 9999 !important; /* Force ces éléments à rester au premier plan */
+}
+
+/* =========================================
+   STYLE DE LA CARTE RDR2 (POPUPS ET TEXTES)
+   ========================================= */
+
+/* 1. Contour (outline) pour rendre le texte toujours lisible sur la carte */
+.rdr2-marker-label, .rdr2-fish-label {
+    text-shadow: 
+        1px 1px 0px #e3dcc8, 
+        -1px -1px 0px #e3dcc8, 
+        1px -1px 0px #e3dcc8, 
+        -1px 1px 0px #e3dcc8,
+        0px 2px 4px rgba(0,0,0,0.6) !important; /* Contour parchemin + ombre */
+}
+
+/* 2. Style de la fenêtre popup (Bulle parchemin) */
+.leaflet-popup-content-wrapper {
+    background-color: #e3dcc8 !important; /* Couleur parchemin */
+    color: #1a1a1a !important; /* Texte noir encre */
+    border: 2px solid #1a1a1a !important; /* Bordure marquée */
+    border-radius: 4px !important; /* Coins un peu plus carrés / vintage */
+    box-shadow: 2px 4px 8px rgba(0,0,0,0.6) !important; /* Ombre de la fenêtre */
+}
+
+/* 3. Le petit triangle en dessous de la bulle */
+.leaflet-popup-tip {
+    background-color: #e3dcc8 !important;
+    border: 2px solid #1a1a1a !important;
+    /* On enlève les bordures du haut et de gauche pour faire fondre le triangle */
+    border-top: none !important;
+    border-left: none !important;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.4) !important;
+}
+
+/* 4. Le bouton de fermeture (Le petit "X") */
+.leaflet-popup-close-button {
+    color: #8b0000 !important; /* Rouge sombre RDR2 */
+    font-weight: bold !important;
+    font-size: 18px !important;
+    padding-top: 2px !important;
+}
+.leaflet-popup-close-button:hover {
+    color: #1a1a1a !important; /* Devient noir au survol */
+}
+
+/* 5. Style du texte à l'intérieur de la popup */
+.leaflet-popup-content {
+    font-family: inherit; /* Utilise la police de ton site */
+    margin: 12px 16px !important;
+}
+.leaflet-popup-content b {
+    color: #8b0000; /* Le nom de l'animal en rouge sombre */
+    font-size: 1.15em;
+    display: block;
+    margin-bottom: 3px;
+    border-bottom: 1px dashed rgba(0,0,0,0.2); /* Petite ligne de séparation */
+    padding-bottom: 3px;
+}
+
+/* ========================================================= */
+/* --- BARRE DE RECHERCHE DÉDIÉE À LA CARTE --- */
+/* ========================================================= */
+.map-search-wrapper {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 400px;
+    z-index: 10000; /* Passe au-dessus de Leaflet */
+}
+
+#map-custom-search {
+    width: 100%;
+    padding: 12px 40px 12px 20px;
+    border-radius: 24px;
+    border: 2px solid var(--border-color);
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    font-size: 1rem;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.6);
+    outline: none;
+}
+
+#clear-map-search-btn {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: none; /* Caché par défaut */
+}
+
+/* Thème RDR2 pour la recherche carte */
+body[class*="theme-rdr2"] #map-custom-search {
+    background-color: var(--table-header) !important;
+    border-color: var(--border-color) !important;
+}
+body.theme-rdr2-light #map-custom-search {
+    background-color: rgba(255, 255, 255, 0.6) !important;
+    color: #2a1f18 !important;
+}
+
+/* ========================================================= */
+/* --- SOUS-RUBRIQUES DU MENU CARTE (TRÉSORS) --- */
+/* ========================================================= */
+.map-category-parent {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    font-weight: bold !important; /* Maintient fermement le gras */
+    cursor: pointer;
+}
+
+.dropdown-arrow {
+    font-size: 0.7rem;
+    margin-left: 8px;
+    transition: transform 0.3s ease;
+    display: inline-block;
+}
+
+.map-category-child {
+    padding-left: 28px;
+    font-size: 0.85rem;
+    font-weight: normal !important; /* Force le texte clair/normal */
+    opacity: 0.85;
+    display: inline-block;
+    color: inherit;
+}
+
+/* Cache les sous-rubriques par défaut */
+.leaflet-control-layers-overlays label:has(.map-category-child) {
+    display: none;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+/* Affichage EXCLUSIF au clic via JS (Désactive totalement le hover) */
+.leaflet-control-layers-overlays.force-show-children label:has(.map-category-child) {
+    display: block !important;
+    animation: fadeInSubMenu 0.2s ease;
+}
+
+/* Rotation de la flèche au clic */
+.leaflet-control-layers-overlays.force-show-children .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+@keyframes fadeInSubMenu {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ========================================================= */
+/* --- CORRECTION CSS : RUBRIQUE CARTES & TRÉSORS        --- */
+/* ========================================================= */
+
+/* 1. Immuniser la ligne parente contre le texte barré et l'opacité réduite de Leaflet */
+.leaflet-control-layers-selector:not(:checked) + span:has(.map-category-parent),
+.leaflet-control-layers-selector:not(:checked) + span .map-category-parent {
+    text-decoration: none !important;
+    opacity: 1 !important;
+}
+
+/* 2. Forcer un texte très gras et noir/sombre pour le parent */
+.map-category-parent {
+    font-weight: 900 !important; 
+    color: inherit !important;
+}
+
+/* 3. S'assurer que les sous-rubriques (enfants) deviennent bien grises/barrées si elles sont décochées */
+.leaflet-control-layers-selector:not(:checked) + span .map-category-child {
+    text-decoration: line-through !important;
+    text-decoration-color: #8b0000 !important; /* Rayure rouge sombre */
+    opacity: 0.4 !important;
+}
+
+/* ========================================================= */
+/* --- CORRECTION CSS : MENU FILTRES & TYPOGRAPHIE       --- */
+/* ========================================================= */
+
+
+.leaflet-control-layers.force-open-menu .leaflet-control-layers-toggle {
+    display: none !important;
+}
+
+/* FORCER LE GRAS SUR TOUTES LES RUBRIQUES PRINCIPALES */
+.map-category-main {
+    font-weight: 900 !important;
+    color: inherit !important;
+}
+
+/* IMMUNISER LE MENU DÉROULANT DES TRÉSORS CONTRE LE TEXTE BARRÉ */
+.leaflet-control-layers-selector:not(:checked) + span:has(.map-category-parent),
+.leaflet-control-layers-selector:not(:checked) + span .map-category-parent {
+    text-decoration: none !important;
+    opacity: 1 !important;
+}
+
+/* ========================================================= */
+/* --- CORRECTION CSS : MENU FILTRES & TYPOGRAPHIE       --- */
+/* ========================================================= */
+
+/* 1. BLOQUER LE SURVOL NATIF DE LEAFLET */
+.leaflet-control-layers:hover .leaflet-control-layers-list { display: none; }
+.leaflet-control-layers:hover .leaflet-control-layers-toggle { display: block; }
+
+/* 2. FORCER L'OUVERTURE AU CLIC VIA LE JAVASCRIPT */
+.leaflet-control-layers.force-open-menu .leaflet-control-layers-list { display: block !important; }
+.leaflet-control-layers.force-open-menu .leaflet-control-layers-toggle { display: none !important; }
+
+/* 3. FORCER LE GRAS SUR TOUTES LES RUBRIQUES PRINCIPALES */
+.map-category-main {
+    font-weight: 900 !important;
+    color: inherit !important;
+}
+
+/* 4. IMMUNISER LE MENU DÉROULANT DES TRÉSORS CONTRE LE TEXTE BARRÉ */
+.leaflet-control-layers-selector:not(:checked) + span:has(.map-category-parent),
+.leaflet-control-layers-selector:not(:checked) + span .map-category-parent {
+    text-decoration: none !important;
+    opacity: 1 !important;
+}
+
+/* ========================================================= */
+/* --- CORRECTION TREMBLEMENT MENU PC (SCROLLBAR & LARGEUR) --- */
+/* ========================================================= */
+
+/* 1. On fige la largeur minimale du menu pour éviter qu'il ne se rétracte/s'étire */
+.leaflet-control-layers-expanded {
+    min-width: 290px !important;
+}
+
+/* 2. On réserve l'espace de la barre de défilement à l'avance (magie du CSS moderne) */
+.leaflet-control-layers-list {
+    scrollbar-gutter: stable; 
+    overflow-x: hidden !important; 
+}
+
+/* ========================================================= */
+/* --- REFONTE COMPLÈTE : THÈME RDR2 SOMBRE (CUIR CHAUD) --- */
+/* ========================================================= */
+
+/* 1. Les nouvelles couleurs globales (Brun cuir et Beige) */
+body.theme-rdr2-dark {
+    --bg-color: #b59e82 !important;       /* Fond parchemin conservé */
+    --card-bg: #5c4738 !important;        /* Brun cuir moyen (fini le noir) */
+    --accent-color: #8a1a19 !important;   /* Rouge RDR2 */
+    --accent-hover: #b32424 !important;
+    --text-color: #f0e6d2 !important;     /* Beige clair doux (fini le blanc pur) */
+    --text-muted: #d4c4af !important;     /* Beige assombri pour le texte secondaire */
+    --border-color: #7a604a !important;   /* Bordure bois / cuir clair */
+
+    --table-bg: #6b5341 !important;       /* Fond des lignes de listes */
+    --table-header: #4a3628 !important;   /* En-tête de liste plus foncé */
+    --table-stripe: #634c3b !important;   /* Zébrage très subtil */
+    --bar-bg: rgba(42, 28, 20, 0.6) !important; /* Fond des barres de progression */
+}
+
+/* 2. Forcer TOUS les textes blancs à utiliser le nouveau Beige clair */
+body.theme-rdr2-dark,
+body.theme-rdr2-dark .card,
+body.theme-rdr2-dark .data-table td,
+body.theme-rdr2-dark #table-stock td,
+body.theme-rdr2-dark .stat-number,
+body.theme-rdr2-dark .progress-value,
+body.theme-rdr2-dark h1, 
+body.theme-rdr2-dark h2, 
+body.theme-rdr2-dark h3,
+body.theme-rdr2-dark .nav-item.active {
+    color: var(--text-color) !important;
+}
+
+/* 3. Harmonisation des champs de saisie (Recherche, Stock, Quantité) */
+body.theme-rdr2-dark #global-search,
+body.theme-rdr2-dark #stock-qty,
+body.theme-rdr2-dark #stock-animal-ghost,
+body.theme-rdr2-dark .qty-btn,
+body.theme-rdr2-dark .custom-dropdown,
+body.theme-rdr2-dark .custom-dropdown li {
+    background-color: var(--table-header) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+body.theme-rdr2-dark .qty-btn:hover {
+    background-color: var(--card-bg) !important;
+}
+body.theme-rdr2-dark .search-bar input::placeholder {
+    color: var(--text-muted) !important;
+}
+
+/* ========================================================= */
+/* --- 4. CORRECTION DES TÂCHES TERMINÉES ET CHECKBOX    --- */
+/* ========================================================= */
+
+/* Le fond de la ligne (Léger voile brun transparent, plus de gris foncé/noir) */
+body.theme-rdr2-dark tr.row-complete td {
+    background-color: rgba(42, 28, 20, 0.25) !important;
+}
+
+/* Le texte terminé (Prend un beige fondu au lieu de devenir noir) */
+body.theme-rdr2-dark tr.row-complete td,
+body.theme-rdr2-dark tr.row-complete td span,
+body.theme-rdr2-dark tr.row-complete td strong,
+body.theme-rdr2-dark tr.row-complete td div {
+    color: rgba(240, 230, 210, 0.4) !important;
+}
+
+/* La couleur de la ligne de rature (Beige fondu) */
+body.theme-rdr2-dark tr.row-complete td:nth-child(1),
+body.theme-rdr2-dark tr.row-complete td:nth-child(2),
+body.theme-rdr2-dark tr.row-complete .breakdown-item span {
+    text-decoration-color: rgba(240, 230, 210, 0.4) !important;
+}
+
+/* --- LA CASE À COCHER --- */
+/* Case normale : Bordure beige clair */
+body.theme-rdr2-dark .data-table input[type="checkbox"] {
+    border-color: var(--text-color) !important;
+}
+/* Case cochée (La croix "X" prend la couleur beige fondu pour s'intégrer au texte) */
+body.theme-rdr2-dark tr.row-complete input[type="checkbox"] {
+    border-color: rgba(240, 230, 210, 0.3) !important;
+}
+body.theme-rdr2-dark tr.row-complete input[type="checkbox"]:checked::after {
+    color: rgba(240, 230, 210, 0.4) !important;
+}
+
+/* --- LES BARRES DE PROGRESSION (CORRECTION LISIBILITÉ) --- */
+
+/* 1. État Vide (0/x) : Fond très sombre et creusé pour bien marquer que c'est vide */
+body.theme-rdr2-dark .mini-bar-bg,
+body.theme-rdr2-dark .progress-bar-bg {
+    background-color: rgba(15, 10, 5, 0.8) !important; /* Brun/Noir très profond */
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.9) !important; /* Ombre interne pour l'effet creusé */
+}
+
+/* 2. État En Cours (1/2) : Reste le beige clair actuel, très visible */
+
+/* 3. État Terminé (1/1) : Devient Rouge bordeaux RDR2 pour marquer la validation */
+body.theme-rdr2-dark tr.row-complete .mini-bar-fill,
+body.theme-rdr2-dark tr.row-complete .progress-bar-fill {
+    background-color: var(--accent-color) !important; /* Le rouge bordeaux RDR2 */
+    opacity: 0.8 !important; /* Légèrement estompé pour s'intégrer à la ligne fantôme */
+    filter: none !important;
+}
+
+/* ========================================================= */
+/* --- APPLICATION DU ROUGE RDR2 (JAUGES ET DASHBOARD) --- */
+/* ========================================================= */
+
+/* 1. Toutes les barres de progression (Mini-barres des listes ET grosses barres du Dashboard) */
+body.theme-rdr2-dark .mini-bar-fill,
+body.theme-rdr2-dark .progress-bar-fill {
+    background-color: var(--accent-color) !important;
+}
+
+/* 2. Les barres terminées restent rouges, mais légèrement estompées pour s'intégrer à la ligne validée */
+body.theme-rdr2-dark tr.row-complete .mini-bar-fill {
+    background-color: var(--accent-color) !important;
+    opacity: 0.6 !important; 
+}
+
+/* 3. Les gros chiffres du Dashboard (Pourcentages et statistiques) */
+body.theme-rdr2-dark #view-dashboard .progress-value,
+body.theme-rdr2-dark #view-dashboard .stat-number {
+    color: var(--accent-color) !important;
+}
+
+/* 4. Les textes du Dashboard (Titres des cartes) */
+body.theme-rdr2-dark #view-dashboard .card h3 {
+    color: var(--accent-color) !important;
+    font-weight: bold !important; /* Un peu de gras pour que le rouge claque bien */
+}
+
+/* 5. Les petits compteurs sous les pourcentages (ex: 12/24) */
+body.theme-rdr2-dark #view-dashboard .progress-box span {
+    /* On utilise accent-hover qui est un rouge *très légèrement* plus clair pour garantir la lisibilité en petit */
+    color: var(--accent-hover) !important; 
+}
+
+/* ========================================================= */
+/* --- CORRECTIONS FINALES : DASHBOARD ET BARRE DE NAV   --- */
+/* ========================================================= */
+
+/* 1. On annule le rouge agressif sur les textes du Dashboard (Retour au beige doux) */
+body.theme-rdr2-dark #view-dashboard .card h3 {
+    color: var(--text-color) !important; 
+    font-weight: normal !important; 
+}
+body.theme-rdr2-dark #view-dashboard .progress-box span {
+    color: var(--text-muted) !important; 
+}
+
+/* 2. BARRE DE NAVIGATION : L'onglet actif s'agrandit et devient Rouge Bordeaux */
+body.theme-rdr2-dark .nav-item.active,
+body.theme-rdr2-dark .nav-item.active i,
+body.theme-rdr2-dark .nav-item.active span {
+    color: var(--accent-color) !important; 
+}
+
+/* On amplifie l'effet pour que la rubrique sélectionnée "saute aux yeux" */
+body.theme-rdr2-dark .nav-item.active {
+    transform: translateY(-8px) scale(1.1) !important;
+    font-weight: bold !important;
+}
+
+/* ========================================================= */
+/* --- COMPTEURS DU DASHBOARD EN BLANC                   --- */
+/* ========================================================= */
+
+body.theme-rdr2-dark #view-dashboard .stat-number {
+    color: #ffffff !important; /* Force le blanc pur pour ces 3 gros chiffres */
+}
+
+/* ========================================================= */
+/* --- STYLE BOUTONS FILTRES CARTE (MASQUER/AFFICHER TOUT)---*/
+/* ========================================================= */
+
+/* Conteneur : Centre les boutons et ajoute de l'espace tout autour */
+.map-filter-buttons-container {
+    display: flex; 
+    justify-content: space-between; 
+    gap: 12px; 
+    margin: 12px 15px 15px 15px; /* Marges : Haut, Droite, Bas, Gauche */
+    padding-bottom: 15px; 
+    border-bottom: 2px dashed rgba(0, 0, 0, 0.2); /* Trait de séparation façon vieux carnet */
+}
+
+/* Base des boutons : Façon tampon à l'encre / Vintage */
+.rdr2-filter-btn {
+    flex: 1;
+    background-color: rgba(0, 0, 0, 0.04); /* Fond presque transparent */
+    border: 2px solid; 
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.15rem;
+    letter-spacing: 1px;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 6px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    box-shadow: 1px 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Effet "enfoncé" au clic */
+.rdr2-filter-btn:active {
+    transform: translateY(2px);
+    box-shadow: none;
+}
+
+/* --- COULEURS THÈME CLAIR (Par défaut) --- */
+.btn-hide-all {
+    color: #8b0000; /* Rouge bordeaux */
+    border-color: #8b0000;
+}
+.btn-hide-all:hover {
+    background-color: #8b0000;
+    color: #e3dcc8; /* Devient parchemin au survol */
+}
+
+.btn-show-all {
+    color: #2e7d32; /* Vert nature foncé */
+    border-color: #2e7d32;
+}
+.btn-show-all:hover {
+    background-color: #2e7d32;
+    color: #e3dcc8;
+}
+
+/* --- COULEURS THÈME SOMBRE (Cuir) --- */
+body.theme-rdr2-dark .map-filter-buttons-container {
+    border-bottom: 2px dashed rgba(255, 255, 255, 0.1);
+}
+body.theme-rdr2-dark .rdr2-filter-btn {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+body.theme-rdr2-dark .btn-hide-all {
+    color: #ef5350; /* Rouge plus clair pour être lisible sur fond sombre */
+    border-color: #ef5350;
+}
+body.theme-rdr2-dark .btn-hide-all:hover {
+    background-color: #ef5350;
+    color: #1a1a1a;
+}
+body.theme-rdr2-dark .btn-show-all {
+    color: #66bb6a; /* Vert plus clair pour le fond sombre */
+    border-color: #66bb6a;
+}
+body.theme-rdr2-dark .btn-show-all:hover {
+    background-color: #66bb6a;
+    color: #1a1a1a;
+}
+
+/* ========================================================= */
+/* --- CORRECTION : BOUTON FILTRE STRICTEMENT CARRÉ      --- */
+/* ========================================================= */
+
+/* Annule l'élargissement de la boîte au survol tant qu'on n'a pas cliqué */
+.leaflet-control-layers-expanded:not(.force-open-menu) {
+    min-width: unset !important;
+    padding: 0 !important;
+}
+
+/* ========================================================= */
+/* --- GESTION DES ANIMATIONS DU BOUTON FILTRE DE CARTE  --- */
+/* ========================================================= */
+
+/* 1. Quand le bouton est FERMÉ (le petit carré) : On lui donne la belle animation fluide du jeu */
+.leaflet-control-layers:not(.force-open-menu) {
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease !important;
+}
+
+.leaflet-control-layers:not(.force-open-menu):hover {
+    transform: scale(1.15) rotate(-12deg) !important; /* Grossit et penche légèrement (comme ton menu hamburger) */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 2. Quand le bouton est OUVERT (le grand menu) : On COUPE STRICTEMENT toutes les animations */
+.leaflet-control-layers.force-open-menu,
+.leaflet-control-layers.force-open-menu:hover {
+    transform: none !important;   /* Bloque instantanément tout mouvement ou grossissement */
+    transition: none !important;  /* Supprime l'effet élastique quand on passe sur les filtres */
+}
+
+/* ========================================================= */
+/* --- ANIMATION DE GROSSISSEMENT SUR LES BOUTONS + ET - --- */
+/* ========================================================= */
+
+/* 1. Pour les grands boutons du formulaire du Stock */
+.qty-btn {
+    /* On fluidifie l'animation (on passe de 0.1s à 0.2s avec une belle courbe) */
+    transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.2s !important;
+}
+
+.qty-btn:hover {
+    transform: scale(1.18) !important; /* Le bouton s'agrandit de 18% au survol */
+}
+
+.qty-btn:active {
+    transform: scale(0.92) !important; /* Effet d'enfoncement net quand on clique dessus */
+}
+
+/* 2. Pour les petits boutons + et - à l'intérieur de tes tableaux */
+.btn-mini {
+    transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), color 0.2s !important;
+}
+
+.btn-mini:hover {
+    transform: scale(1.25) !important; /* Les petits boutons s'agrandissent d'un quart au survol */
+}
+
+.btn-mini:active {
+    transform: scale(0.85) !important;
+}
+
+/* ========================================================= */
+/* --- ANIMATION DES BOUTONS DE ZOOM (+ / -) SUR LA CARTE --- */
+/* ========================================================= */
+
+/* 1. On autorise les boutons à déborder de leur conteneur pour pouvoir grossir */
+.leaflet-bar {
+    overflow: visible !important; 
+}
+
+/* 2. On applique l'animation aux boutons + et - de la carte */
+.leaflet-bar a,
+body[class*="theme-rdr2"] .leaflet-bar a {
+    transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.2s, color 0.2s !important;
+    position: relative; /* Nécessaire pour que le bouton passe au premier plan quand il grossit */
+    border-radius: 6px !important; /* On arrondit les angles pour l'effet bouton 3D */
+}
+
+/* 3. Effet d'agrandissement au survol */
+.leaflet-bar a:hover,
+body[class*="theme-rdr2"] .leaflet-bar a:hover {
+    transform: scale(1.25) !important; /* Grossit d'un quart */
+    z-index: 10 !important; /* Passe au-dessus du reste */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.6) !important;
+}
+
+/* 4. Effet d'enfoncement au clic */
+.leaflet-bar a:active,
+body[class*="theme-rdr2"] .leaflet-bar a:active {
+    transform: scale(0.9) !important; 
+}
+
+/* ========================================================= */
+/* --- CORRECTION MENU CARTE OUVERT (FIXE ET AÉRÉ)       --- */
+/* ========================================================= */
+
+/* Quand le menu est ouvert, on force une taille généreuse en permanence et on bloque tout changement au survol */
+.leaflet-control-layers.force-open-menu,
+.leaflet-control-layers.force-open-menu:hover {
+    min-width: 320px !important; /* Largeur généreuse pour que les textes respirent */
+    padding: 15px !important; /* Bel espace interne (marges) autour du texte (plus aéré) */
+    transform: none !important; /* Coupe l'animation de grossissement du bloc */
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5) !important; /* Garde l'ombre fixe */
+    margin: 0 !important; /* Empêche les petits tremblements */
+}
+
+/* ========================================================= */
+/* --- AFFINAGE DE L'EN-TÊTE (GAIN DE PLACE VERTICAL)    --- */
+/* ========================================================= */
+
+/* 1. Réduction des espaces vides (Padding) en haut et en bas */
+header {
+    padding: 10px 15px !important; /* On passe de 18px à 10px */
+}
+
+/* 2. Affinage de la barre de recherche */
+.search-bar input {
+    padding: 8px 40px 8px 15px !important; /* Moins haute, mais garde la place pour la croix */
+    min-height: 38px !important; /* On gagne de précieux pixels ici */
+    font-size: 0.95rem !important;
+}
+
+/* 3. Réduction subtile de la taille des icônes */
+.menu-trigger svg {
+    width: 28px !important; /* Au lieu de 34px */
+    height: 28px !important;
+}
+.header-home-icon svg {
+    width: 24px !important; /* Au lieu de 32px */
+    height: 24px !important;
+}
+
+/* --- AJUSTEMENTS SUR MOBILE --- */
+@media (max-width: 768px) {
+    .header-grid {
+        gap: 8px !important; /* Rapproche le titre de la barre de recherche */
+    }
+    .header-title {
+        font-size: 1.4rem !important; /* Légèrement plus petit pour faire respirer */
+    }
+    
+    /* On remonte la carte pour combler le vide gagné */
+    #view-map.active {
+        top: 92px !important; /* L'en-tête mobile fait maintenant environ 90px de haut */
+        height: calc(100dvh - 92px) !important;
+    }
+}
+
+/* --- AJUSTEMENTS SUR PC & TABLETTE --- */
+@media (min-width: 769px) {
+    .header-title {
+        font-size: 1.8rem !important; /* Au lieu de 2.2rem */
+    }
+    
+    /* On remonte la carte pour combler le vide gagné */
+    #view-map.active {
+        top: 60px !important; /* L'en-tête PC fait maintenant environ 60px de haut */
+        height: calc(100dvh - 60px) !important;
+    }
+}
+
+/* ========================================================= */
+/* --- MENTION DE L'AUTEUR DE LA CARTE (ATTRIBUTION)     --- */
+/* ========================================================= */
+
+.leaflet-control-attribution {
+    background: transparent !important; /* Retire complètement le rectangle noir */
+    color: #ffffff !important; /* Texte en blanc pur */
+    font-size: 0.75rem !important; 
+    border: none !important;
+    padding: 0 !important;
+    
+    /* On détache le texte pour le forcer TOUT en bas à droite de l'écran */
+    position: fixed !important;
+    bottom: 5px !important;
+    right: 8px !important;
+    margin: 0 !important;
+    z-index: 1000 !important;
+    
+    /* Ombre douce pour garantir la lisibilité sur fond clair */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Style du lien cliquable */
+.leaflet-control-attribution a {
+    color: #ffffff !important;
+    text-decoration: underline; 
+    font-weight: bold;
+}
+
+.leaflet-control-attribution a:hover {
+    color: #d4af37 !important; /* Devient doré au survol de la souris */
+}
+
+/* Masquer le logo "Leaflet" par défaut */
+.leaflet-control-attribution a[href*="leaflet"] {
+    display: none !important;
+}
+
+/* ========================================================= */
+/* --- CUSTOMISATION DES BOUTONS DE ZOOM (+ / -)           --- */
+/* ========================================================= */
+
+/* 1. Reset de la boîte de fond Leaflet */
+.leaflet-bar {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+/* 2. Style de base des boutons (Aucune animation de taille pour éviter le bug mobile) */
+.leaflet-bar a {
+    background-color: #d1c0a8 !important;
+    color: #2a1f18 !important;
+    border: 2px solid #8b7355 !important;
+    width: 36px !important;
+    height: 36px !important;
+    line-height: 32px !important;
+    font-size: 1.4rem !important;
+    font-weight: bold !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    box-shadow: 2px 3px 5px rgba(0,0,0,0.5) !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+/* 3. Arrondis spécifiques */
+.leaflet-control-zoom-in {
+    border-radius: 6px 6px 0 0 !important;
+    border-bottom: 1px solid #5c4a3d !important;
+}
+.leaflet-control-zoom-out {
+    border-radius: 0 0 6px 6px !important;
+    border-top: none !important;
+}
+
+/* 4. Survol (Hover) - Appliqué UNIQUEMENT sur PC (Souris) */
+@media (hover: hover) and (pointer: fine) {
+    .leaflet-bar a:hover {
+        background-color: #2a1f18 !important;
+        color: #d4af37 !important;
+    }
+}
+
+/* 5. Clic / Tapotement (Couleur simple, pas de changement de taille) */
+.leaflet-bar a:active {
+    background-color: #8b7355 !important;
+    color: #ffffff !important;
+}
+
+/* 6. État désactivé (Quand on zoom au maximum/minimum) */
+.leaflet-control-zoom a.leaflet-disabled {
+    background-color: #baa892 !important;
+    color: #888888 !important;
+    border-color: #a39581 !important;
+    cursor: default !important;
+    box-shadow: none !important;
+}
+
+/* ========================================================= */
+/* --- ANIMATION : AJOUT D'UNE RESSOURCE AU STOCK        --- */
+/* ========================================================= */
+
+@keyframes rdr2-item-add {
+    0% { 
+        transform: translateX(-15px); 
+        background-color: rgba(212, 175, 55, 0.5); /* Lueur dorée (Gold) */
+        opacity: 0; 
+    }
+    40% { 
+        transform: translateX(5px); 
+        background-color: rgba(212, 175, 55, 0.2); 
+        opacity: 1; 
+    }
+    100% { 
+        transform: translateX(0); 
+        background-color: transparent; 
+        opacity: 1; 
+    }
+}
+
+.stock-item-added {
+    animation: rdr2-item-add 1s ease-out forwards;
+}

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Registre d'Arthur</title>
+    <link rel="stylesheet" href="css/style.css?v=6">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+
+    <header>
+        <style>
+            /* --- RÈGLES DE DISPOSITION (HEADER) --- */
+            .header-grid { width: 100%; display: grid; gap: 15px; align-items: center; margin-bottom: 15px; position: relative; }
+            .h-left { display: flex; align-items: center; gap: 12px; }
+            .h-search { width: 100%; position: relative; display: flex; align-items: center; }
+            .h-menu { display: flex; justify-content: flex-end; align-items: center; }
+            .header-title { margin: 0; color: var(--text-color); font-weight: bold; text-transform: uppercase; }
+            
+            /* Icône Maison SANS PORTE */
+            .header-home-icon { cursor: pointer; color: var(--text-color); display: flex; align-items: center; margin-top: -2px; }
+            .header-home-icon svg { width: 26px; height: 26px; stroke-width: 2.5px; }
+
+            /* Bouton Menu */
+            .header-menu-btn { background: none; border: none; cursor: pointer; color: var(--text-color); display: flex; align-items: center; padding: 0; z-index: 10000; }
+
+            /* Boutons dans la barre de recherche ABSOLUMENT CENTRÉS */
+            .search-btn-absolute {
+                position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+                background: none; border: none; cursor: pointer; color: var(--text-muted);
+                padding: 5px; align-items: center; justify-content: center; z-index: 10;
+            }
+
+            /* --- DESIGN DU MENU PARAMÈTRES (S'ADAPTE AU THÈME) --- */
+            #settings-panel.settings-overlay {
+                position: absolute !important;
+                display: none !important;
+                background: var(--card-bg) !important; /* CORRECTION : var(--card-bg) rend le fond opaque et lié au thème */
+                border: 2px solid var(--border-color) !important;
+                border-radius: 8px !important;
+                padding: 20px !important;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.8) !important;
+                z-index: 9999 !important;
+                height: auto !important; 
+                bottom: auto !important; 
+            }
+
+            #settings-panel .settings-content {
+                width: 100% !important; max-width: none !important; padding: 0 !important; margin: 0 !important; 
+                box-shadow: none !important; border: none !important; background: transparent !important; display: block !important;
+            }
+            
+            /* L'En-tête du menu (Titre à gauche, Croix à droite, parfaitement alignés) */
+            #settings-panel .settings-header {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                margin-bottom: 10px !important;
+            }
+            #settings-panel .settings-header h3 { color: var(--text-color) !important; margin: 0 !important; font-size: 1.4rem !important; }
+            #settings-panel .close-btn { 
+                position: static !important; /* Supprime le bug de placement absolu */
+                color: #b30000 !important; font-size: 2.2rem !important; font-weight: bold !important; 
+                background: none; border: none; cursor: pointer; line-height: 1; padding: 0; margin-top: -5px;
+            }
+            
+            #settings-panel .settings-desc { color: var(--text-muted) !important; font-weight: 500 !important; font-size: 0.95rem !important; line-height: 1.4 !important; margin-top: 5px !important; margin-bottom: 15px !important; }
+            
+            /* Boutons du menu stylisés selon le thème */
+           /* Boutons du menu stylisés selon le thème */
+            #settings-panel .btn-dark { 
+                background: #444 !important; 
+                color: #fff !important; 
+                border: 1px solid var(--border-color) !important; 
+                font-weight: bold !important; 
+            }
+            
+            #settings-panel .btn { margin-top: 10px !important; }
+
+            /* --- CORRECTION DE LA SYMÉTRIE DE SÉLECTION DU BAS --- */
+            .nav-bar { display: flex !important; justify-content: space-around !important; align-items: center !important; }
+            .nav-item {
+                display: flex !important; flex-direction: column !important; justify-content: center !important; align-items: center !important;
+                flex: 1 !important; margin: 6px 4px !important; box-sizing: border-box !important; border-radius: 12px !important;
+                gap: 5px !important; position: relative !important;
+            }
+            .nav-item::before, .nav-item::after { display: none !important; } 
+            .nav-item i { margin: 0 !important; line-height: 1 !important; display: block !important; }
+            .nav-item span { margin: 0 !important; line-height: 1 !important; display: block !important; }
+            .nav-item.active { background-color: rgba(120, 120, 120, 0.15) !important; }
+
+            /* --- VERSION PC --- */
+            @media (min-width: 769px) {
+                .header-grid { grid-template-columns: auto 1fr auto; gap: 20px; }
+                .h-search { justify-self: end; max-width: 450px; }
+                .h-menu { margin-left: 10px; }
+                .header-title { font-size: 2.2rem; }
+                .header-home-icon svg { width: 32px; height: 32px; }
+                
+                .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; }
+                .card { padding: 25px; }
+                .card h3 { font-size: 1.3rem; }
+                .progress-value { font-size: 2.5rem; }
+                
+                /* Animation PC (Le menu éclot depuis les 3 traits) */
+                @keyframes popFromMenuPC {
+                    0% { opacity: 0; transform: scale(0.5); }
+                    100% { opacity: 1; transform: scale(1); }
+                }
+
+                #settings-panel.settings-overlay {
+                    top: 65px !important; right: 15px !important; width: 340px !important;
+                    left: auto !important; transform-origin: top right !important; /* L'origine est collée aux 3 traits */
+                }
+                #settings-panel.settings-overlay.show {
+                    display: block !important;
+                    animation: popFromMenuPC 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+                }
+
+                .nav-bar { height: 75px !important; }
+                .nav-item { height: calc(100% - 12px) !important; }
+                .nav-item i { font-size: 1.7rem !important; }
+                .nav-item span { font-size: 0.95rem !important; }
+            }
+
+            /* --- VERSION MOBILE / TABLETTE --- */
+            @media (max-width: 768px) {
+                .header-grid { grid-template-columns: 1fr auto; grid-template-rows: auto auto; gap: 12px; }
+                .h-left { grid-column: 1 / 2; grid-row: 1 / 2; }
+                .h-menu { grid-column: 2 / 3; grid-row: 1 / 2; display: flex !important; }
+                .h-search { grid-column: 1 / 3; grid-row: 2 / 3; }
+                .header-title { font-size: 1.6rem; }
+                
+                @keyframes slideDownMenuMobile {
+                    0% { opacity: 0; transform: translate(-50%, -20px) scale(0.95); }
+                    100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+                }
+
+                #settings-panel.settings-overlay {
+                    top: 70px !important; 
+                    left: 50% !important; 
+                    transform: translateX(-50%) !important;
+                    width: 92% !important; max-width: 400px !important; right: auto !important;
+                    transform-origin: top center;
+                }
+                #settings-panel.settings-overlay.show {
+                    display: block !important;
+                    animation: slideDownMenuMobile 0.2s ease-out forwards !important;
+                }
+
+                .nav-bar { height: 70px !important; min-height: 70px !important; padding: 0 !important; }
+                .nav-item { height: calc(100% - 12px) !important; padding: 0 !important; }
+                .nav-item i { font-size: 1.4rem !important; }
+                .nav-item span { font-size: 0.7rem !important; }
+                .main-container { padding-bottom: 85px !important; } 
+            }
+        </style>
+
+        <div class="header-container header-grid">
+            <div class="h-left">
+                <div onclick="document.querySelectorAll('.nav-item')[0].click()" class="header-home-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    </svg>
+                </div>
+                <h1 id="view-title-text" class="header-title">Tableau de Bord</h1>
+            </div>
+            
+            <div class="h-search search-bar">
+                <input type="text" id="global-search" placeholder="Recherche rapide (biche, plume...)" oninput="handleGlobalSearchInput()" autocomplete="off" style="width: 100%; padding: 12px 45px 12px 15px; font-size: 1rem; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(120, 120, 120, 0.08); color: var(--text-color); outline: none;">
+                
+                <button id="clear-search-btn" class="clear-search-btn search-btn-absolute" onclick="clearSearch()" style="display: none;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+                
+                <button id="dropdown-toggle-btn" class="search-btn-absolute" onclick="toggleFullSearchList(event)" style="display: flex;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                
+                <ul id="global-search-dropdown" class="custom-dropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 1000; margin-top: 5px; max-height: 250px; overflow-y: auto; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 4px; padding: 0; list-style: none; box-shadow: 0 4px 6px rgba(0,0,0,0.3);"></ul>
+            </div>
+            
+            <div class="h-menu">
+                <button class="menu-trigger header-menu-btn" onclick="toggleSettings()">
+                    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div id="settings-panel" class="settings-overlay">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h3>⚙️ Paramètres</h3>
+                <button class="close-btn" onclick="toggleSettings()">✕</button>
+            </div>
+            <p class="settings-desc">
+                Vos modifications sont sauvegardées <strong>automatiquement</strong> sur cet appareil. Utilisez les options ci-dessous pour gérer vos données.
+            </p>
+            <div class="backup-controls-vertical">
+                <button class="btn btn-dark" onclick="exportData()">📤 Exporter les données (JSON)</button>
+                <button class="btn btn-dark" onclick="document.getElementById('import-file').click()">📥 Importer un fichier</button>
+                <input type="file" id="import-file" style="display:none" onchange="importData(event)">
+                
+                <hr class="settings-divider">
+                
+                <button class="btn btn-dark" onclick="cycleTheme()" id="btn-theme" style="margin-top: 10px; font-weight: bold; font-size: 1.1em;">
+                    🎨 Thème : Sombre
+                </button>
+
+                
+                <button class="btn" onclick="resetToDefault()" style="margin-top: 15px; background-color: #7a0000; color: white;">
+                    🔄 Réinitialiser l'application
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+
+        <section id="view-dashboard" class="view-section active">
+            <div class="dashboard-grid">
+                <div class="card clickable-card" onclick="document.querySelectorAll('.nav-item')[5].click()">
+                    <h3>Progression Globale</h3>
+                    <div class="progress-box">
+                        <span class="progress-value" id="prog-global-val">0%</span>
+                        <span id="prog-global-count" class="text-muted">0 / 0</span>
+                    </div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-global-bar"></div></div>
+                </div>
+                <div class="card clickable-card" onclick="document.querySelectorAll('.nav-item')[1].click()">
+                    <h3>🏕️ Camp de Base</h3>
+                    <div class="progress-box">
+                        <span class="progress-value" id="prog-camp-val">0%</span>
+                        <span id="prog-camp-count">0 / 0</span>
+                    </div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-camp-bar"></div></div>
+                </div>
+                <div class="card clickable-card" onclick="document.querySelectorAll('.nav-item')[2].click()">
+                    <h3>🦊 Receleur</h3>
+                    <div class="progress-box">
+                        <span class="progress-value" id="prog-rec-val">0%</span>
+                        <span id="prog-rec-count">0 / 0</span>
+                    </div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-rec-bar"></div></div>
+                </div>
+                <div class="card clickable-card" onclick="document.querySelectorAll('.nav-item')[3].click()">
+                    <h3>🧥 Trappeur</h3>
+                    <div class="progress-box">
+                        <span class="progress-value" id="prog-trap-val">0%</span>
+                        <span id="prog-trap-count">0 / 0</span>
+                    </div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-trap-bar"></div></div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="card clickable-card" onclick="document.querySelectorAll('.nav-item')[5].click()">
+                    <h3>Animaux nécessaires restants</h3>
+                    <div class="stat-number" id="stat-animals-needed">0</div>
+                </div>
+                <div class="card clickable-card" onclick="switchView('receleur', '🦊 Receleur', document.querySelectorAll('.nav-item')[2]); setTimeout(() => document.querySelector('.row-talisman').scrollIntoView({behavior:'smooth'}), 100)">
+                    <h3>Talismans Terminés</h3>
+                    <div class="stat-number" id="stat-talismans">0</div>
+                </div>
+                <div class="card clickable-card" onclick="switchView('receleur', '🦊 Receleur', document.querySelectorAll('.nav-item')[2]);">
+                    <h3>Amulettes Terminées</h3>
+                    <div class="stat-number" id="stat-amulets">0</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-camp" class="view-section">
+            <button class="mobile-toggle-btn" onclick="toggleColumn('table-camp', this)">👁️ Afficher les objets à débloquer</button>
+            <div class="data-table-container">
+                <table class="data-table mobile-hide-col1" id="table-camp">
+                    <thead>
+                        <tr>
+                            <th>Objet à Débloquer</th>
+                            <th>Ressource</th>
+                            <th>Progression</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="view-receleur" class="view-section">
+            <button class="mobile-toggle-btn" onclick="toggleColumn('table-receleur', this)">👁️ Afficher les noms d'amulettes</button>
+            <div class="data-table-container">
+                <table class="data-table mobile-hide-col1" id="table-receleur">
+                    <thead>
+                        <tr>
+                            <th>Type / Nom</th>
+                            <th>Composants requis</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="view-trappeur" class="view-section">
+            <button class="mobile-toggle-btn" onclick="toggleColumn('table-trappeur', this)">👁️ Afficher les équipements</button>
+            <div class="data-table-container">
+                <table class="data-table mobile-hide-col1" id="table-trappeur">
+                    <thead>
+                        <tr>
+                            <th>Type / Équipement</th>
+                            <th>Ressource</th>
+                            <th>Progression</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="view-stock" class="view-section">
+            <div class="stock-interface">
+                <div class="card">
+                    <h3>Enregistrer une trouvaille</h3>
+                    <div class="form-group">
+                        <label>Ressource ou Animal obtenu</label>
+                        <div class="autocomplete-container">
+                            <input type="text" id="stock-animal-ghost" class="autocomplete-input" disabled>
+                            <input type="text" id="stock-animal" class="autocomplete-input" placeholder="Ex: Biche, Cerf, Pic..." autocomplete="off" oninput="handleStockInput()">
+                            <div class="autocomplete-arrow" id="toggle-dropdown-btn">▼</div>
+                            <ul id="custom-animal-list" class="custom-dropdown" style="display: none;"></ul>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="stock-qty">Quantité</label>
+                        <div class="qty-input-group">
+                            <input type="number" id="stock-qty" value="1" min="1">
+                            <button class="qty-btn" type="button" onpointerdown="changeStockQty(-1); event.preventDefault();">−</button>
+                            <button class="qty-btn" type="button" onpointerdown="changeStockQty(1); event.preventDefault();">+</button>
+                        </div>
+                    </div>
+
+                    <div class="allocation-box" id="smart-allocation">
+                        <div class="allocation-title">💡 Où attribuer cette ressource ?</div>
+                        <div class="allocation-options" id="allocation-options-btns"></div>
+                    </div>
+
+                </div>
+
+                <div class="card">
+                    <h3>Ressources actuellement en Stock</h3>
+                    <div class="data-table-container" style="margin-top: 15px;">
+                        <table class="data-table" id="table-stock">
+                            <thead>
+                                <tr>
+                                    <th>Ressource</th>
+                                    <th>Quantité</th>
+                                    <th>Actions disponibles</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-hunting" class="view-section">
+            <div class="data-table-container">
+                <table class="data-table" id="table-hunting-list">
+                    <thead>
+                        <tr>
+                            <th>Animal / Ressource</th>
+                            <th>Total Requis</th>
+                            <th>Total Obtenu</th>
+                            <th>Reste à Chasser</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        
+            
+            <!--<div style="position: absolute; z-index: 10000; top: 20px; left: 50%; transform: translateX(-50%); background: #f4f4f4; padding: 15px; border: 2px solid #1a1a1a; border-radius: 8px; font-family: Arial, sans-serif; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+                <label for="colorPicker" style="margin-right: 10px; font-weight: bold; color: #1a1a1a;">Clique pour la pipette :</label>
+                <input type="color" id="colorPicker" value="#ffffff" style="cursor: pointer;">
+                <span id="hexResult" style="margin-left: 15px; font-weight: bold; font-size: 18px; color: #d4af37;">#ffffff</span>
+            </div>-->
+
+        <section id="view-map" class="view-section">
+            <div id="map-container"></div>
+        </section>
+
+        
+    </div> <button id="undo-btn" class="undo-btn" title="Annuler la dernière action" onpointerdown="triggerUndo(); event.preventDefault();">↺</button>
+
+    <nav class="nav-bar">
+        <div class="nav-item active" onclick="switchView('dashboard', '🏠 Tableau de Bord', this)"><i>🏠</i><span>DASHBOARD</span></div>
+        <div class="nav-item" onclick="switchView('camp', '🏕️ Camp de Base', this)"><i>🏕️</i><span>CAMP</span></div>
+        <div class="nav-item" onclick="switchView('receleur', '🦊 Receleur', this)"><i>🦊</i><span>RECELEUR</span></div>
+        <div class="nav-item" onclick="switchView('trappeur', '🧥 Trappeur', this)"><i>🧥</i><span>TRAPPEUR</span></div>
+        <div class="nav-item" onclick="switchView('stock', '📦 Gestion du Stock', this)"><i>📦</i><span>STOCK</span></div>
+        <div class="nav-item" onclick="switchView('hunting', '🎯 Liste de Chasse Globale', this)"><i>🎯</i><span>CHASSE</span></div>
+        <div class="nav-item" onclick="switchView('map', '🗺️ Carte Interactive', this); initOrUpdateMap();"><i>🗺️</i><span>CARTE</span></div>
+        
+        
+    </nav>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
