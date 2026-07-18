@@ -594,7 +594,7 @@ function renderCamp() {
         activeFilter = activePill.dataset.filter;
     }
 
-    // 2. VUE "TOUT AFFICHER" (Classique, de A à Z avec les étoiles/boutons)
+    // 2. VUE "TOUT AFFICHER" (Classique)
     if (activeFilter === 'all') {
         db.camp.forEach(item => {
             let isComplete = item.current >= item.total;
@@ -617,10 +617,10 @@ function renderCamp() {
             `;
             tbody.appendChild(tr);
         });
-        return; // On stoppe l'exécution ici pour la vue classique
+        return; // On stoppe l'exécution ici
     }
 
-    // 3. VUE FILTRÉE (Le Menu de Pearson Exact)
+    // 3. VUE FILTRÉE (Le Menu de Pearson)
     const categoryConfigs = {
         sacoches: [
             { group: "Sacoche pour fortifiants", items: [{ id: 4, label: "Biche" }, { id: 9, label: "Cerf" }, { id: 27, label: "Wapiti" }] },
@@ -649,10 +649,12 @@ function renderCamp() {
     let renderCounts = {};
 
     currentConfig.forEach(groupBlock => {
-        // Ligne d'en-tête (Nom de la Sacoche / du Quartier)
+        // Ligne d'en-tête (Nom du groupe)
         let trGroup = document.createElement('tr');
+        
+        // ASTUCE ICI : On a ajouté "display: table-cell !important;" pour forcer l'affichage sur mobile
         trGroup.innerHTML = `
-            <td colspan="3" style="background: rgba(139,0,0,0.08); font-weight: bold; font-size: 1.1em; color: var(--text-color); border-bottom: 2px solid #8b0000; padding: 12px 15px;">
+            <td colspan="3" style="display: table-cell !important; background: rgba(139,0,0,0.08); font-weight: bold; font-size: 1.1em; color: var(--text-color); border-bottom: 2px solid #8b0000; padding: 12px 15px;">
                 ${groupBlock.group}
             </td>
         `;
@@ -665,13 +667,16 @@ function renderCamp() {
 
             let tr = document.createElement('tr');
             let actionHtml = '';
+            let firstColumnHtml = '';
 
-            // Si c'est l'onglet Sacoche, on met les cases à cocher
+            // Si c'est l'onglet Sacoches : on vide la 1ère colonne et on met les cases
             if (activeFilter === 'sacoches') {
                 renderCounts[req.id] = (renderCounts[req.id] || 0) + 1;
                 let isChecked = renderCounts[req.id] <= dbItem.current;
                 
                 if (isChecked) tr.className = 'row-complete';
+
+                firstColumnHtml = `<td></td>`;
 
                 actionHtml = `
                     <td style="text-align: center;">
@@ -681,18 +686,18 @@ function renderCamp() {
                     </td>
                 `;
             } 
-            // Si c'est n'importe quel autre onglet (Quartiers, Améliorations...), on remet le système d'étoiles normal
+            // Si c'est Quartiers ou Améliorations : on garde le texte et les étoiles
             else {
                 if (dbItem.current >= dbItem.total) tr.className = 'row-complete';
+                
+                firstColumnHtml = `<td style="padding-left: 35px; font-weight: 500; color: var(--text-color);">${req.label}</td>`;
                 actionHtml = `<td>${makeStarsHtml(dbItem.current, dbItem.total, `updateQty('camp', ${req.id}, QTY)`)}</td>`;
             }
 
-            // Affichage propre sans les flèches
-            let mobileContext = `<div class="mobile-filter-context" style="margin-top: 4px; font-size: 0.85em; color: #a98d6f;">Pour : ${groupBlock.group}</div>`;
-
+            // On a supprimé le texte "mobileContext" redondant !
             tr.innerHTML = `
-                <td style="padding-left: 35px; font-weight: 500; color: var(--text-color);">${req.label}</td>
-                <td>${dbItem.resource.split('(')[0].trim()} ${mobileContext}</td>
+                ${firstColumnHtml}
+                <td>${dbItem.resource.split('(')[0].trim()}</td>
                 ${actionHtml}
             `;
             tbody.appendChild(tr);
