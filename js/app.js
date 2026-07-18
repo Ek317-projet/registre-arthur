@@ -81,34 +81,34 @@ function importData(event) {
 // =========================================================
 const initialData = {
     camp: [
-        { id: 1, category: "Améliorations", item: "Logement d'Arthur", resource: "Alligator (une carcasse)", total: 1, current: 0 },
-        { id: 2, category: "Améliorations", item: "Tables du camp et chariot garde manger", resource: "Antilope", total: 2, current: 0 },
-        { id: 3, category: "Améliorations", item: "Tables du camp et chariot garde manger", resource: "Antilope (carcasse)", total: 1, current: 0 },
-        { id: 4, category: "Sacoches", item: "Sacoche de provisions", resource: "Biche", total: 7, current: 0 },
+        { id: 1, category: "Améliorations", item: "Quartiers d'Arthur <br><small style='color: var(--text-muted); font-weight: normal;'>(Crâne d'alligator)</small>", resource: "Alligator (une carcasse)", total: 1, current: 0 },
+        { id: 2, category: "Améliorations", item: "Tables du camp <br><small style='color: var(--text-muted); font-weight: normal;'>(Nappe en cuir d'antilope)</small>", resource: "Antilope", total: 2, current: 0 },
+        { id: 3, category: "Améliorations", item: "Chariot garde-manger <br><small style='color: var(--text-muted); font-weight: normal;'>(Crâne d'antilope)</small>", resource: "Antilope (carcasse)", total: 1, current: 0 },
+        { id: 4, category: "Sacoches", item: "Toutes les sacoches <br><small style='color: var(--text-muted); font-weight: normal;'>(1 peau requise par modèle)</small>", resource: "Biche", total: 7, current: 0 },
         { id: 5, category: "Sacoches", item: "Sacoche de provisions", resource: "Bison", total: 1, current: 0 },
         { id: 6, category: "Sacoches", item: "Sacoche d'ingrédients", resource: "Blaireau", total: 1, current: 0 },
-        { id: 7, category: "Améliorations", item: "Feu de camp principal", resource: "Bœuf", total: 2, current: 0 },
-        { id: 8, category: "Sacoches", item: "Sacoche d'objets de valeur", resource: "Castor", total: 2, current: 0 },
-        { id: 9, category: "Sacoches", item: "Sacoche de médicaments et feu de camp", resource: "Cerf", total: 1, current: 0 },
-        { id: 10, category: "Sacoches", item: "Sacoche de médicaments et Feu de camp", resource: "Cerf (bois)", total: 1, current: 0 },
-        { id: 11, category: "Améliorations", item: "Feu de camp des sentinelles", resource: "Chèvre", total: 2, current: 0 },
-        { id: 12, category: "Sacoches", item: "Sacoche de Légende de l'Est", resource: "Couguar", total: 3, current: 0 },
+        { id: 7, category: "Améliorations", item: "Quartiers d'Arthur <br><small style='color: var(--text-muted); font-weight: normal;'>(Tapis en peau de bœuf)</small>", resource: "Bœuf", total: 2, current: 0 },
+        { id: 8, category: "Sacoches / Améliorations", item: "Sacoche d'objets de valeur et Feu de camp principal <br><small style='color: var(--text-muted); font-weight: normal;'>(Couverture de siège du feu de camp)</small>", resource: "Castor", total: 2, current: 0 },
+        { id: 9, category: "Sacoches", item: "Sacoche pour fortifiants", resource: "Cerf", total: 1, current: 0 },
+        { id: 10, category: "Améliorations", item: "Feu de camp des sentinelles <br><small style='color: var(--text-muted); font-weight: normal;'>(Ossements décoratifs)</small>", resource: "Cerf (bois)", total: 1, current: 0 },
+        { id: 11, category: "Améliorations", item: "Feu de camp des sentinelles <br><small style='color: var(--text-muted); font-weight: normal;'>(Tapis de sol pour feu de camp)</small>", resource: "Chèvre", total: 2, current: 0 },
+        { id: 12, category: "Sacoches / Améliorations", item: "Sacoche de Légende de l'Est et Quartiers d'Arthur <br><small style='color: var(--text-muted); font-weight: normal;'>(Coffre recouvert de peau de couguar)</small>", resource: "Couguar", total: 3, current: 0 },
         { id: 13, category: "Sacoches", item: "Sacoche d'ingrédients", resource: "Écureuil", total: 1, current: 0 },
         { id: 14, category: "Sacoches", item: "Sacoche de matériaux", resource: "Iguane", total: 1, current: 0 },
         { id: 15, category: "Sacoches", item: "Sacoche d'objets de valeur", resource: "Lapin", total: 1, current: 0 },
-        { id: 16, category: "Sacoches / Améliorations", item: "Sacoches et Feu de camp", resource: "Loup", total: 3, current: 0 },
-        { id: 17, category: "Sacoches / Améliorations", item: "Sacoches et Feu de camp", resource: "Loup (carcasse)", total: 1, current: 0 },
-        { id: 18, category: "Améliorations", item: "Logement d'Arthur", resource: "Mouflon mâle (une carcasse)", total: 1, current: 0 },
-        { id: 19, category: "Améliorations", item: "Feu de camp principal", resource: "Orignal (Bois)", total: 1, current: 0 },
-        { id: 20, category: "Sacoches", item: "Sacoche de poche", resource: "Panthère", total: 1, current: 0 },
-        { id: 21, category: "Améliorations", item: "Feu de camp principal", resource: "Rat musqué", total: 1, current: 0 },
+        { id: 16, category: "Sacoches / Améliorations", item: "Sacoche de Légende de l'Est et Feu de camp principal <br><small style='color: var(--text-muted); font-weight: normal;'>(Couverture du trône du feu de camp)</small>", resource: "Loup", total: 3, current: 0 },
+        { id: 17, category: "Améliorations", item: "Feu de camp principal <br><small style='color: var(--text-muted); font-weight: normal;'>(Crâne de loup)</small>", resource: "Loup (carcasse)", total: 1, current: 0 },
+        { id: 18, category: "Améliorations", item: "Quartiers d'Arthur <br><small style='color: var(--text-muted); font-weight: normal;'>(Crâne de mouflon)</small>", resource: "Mouflon mâle (une carcasse)", total: 1, current: 0 },
+        { id: 19, category: "Améliorations", item: "Feu de camp principal <br><small style='color: var(--text-muted); font-weight: normal;'>(Bois d'orignal)</small>", resource: "Orignal (Bois)", total: 1, current: 0 },
+        { id: 20, category: "Sacoches", item: "Sacoche de nécessaires", resource: "Panthère", total: 1, current: 0 },
+        { id: 21, category: "Améliorations", item: "Feu de camp principal <br><small style='color: var(--text-muted); font-weight: normal;'>(Couverture de siège du feu de camp)</small>", resource: "Rat musqué", total: 1, current: 0 },
         { id: 22, category: "Sacoches", item: "Sacoche de provisions", resource: "Raton laveur", total: 1, current: 0 },
-        { id: 23, category: "Améliorations", item: "Feu de camp principal", resource: "Renard", total: 1, current: 0 },
-        { id: 24, category: "Sacoches", item: "Sacoche de matériaux et Logement John", resource: "Sanglier", total: 6, current: 0 },
-        { id: 25, category: "Améliorations", item: "Feu de camp", resource: "Serpent", total: 2, current: 0 },
-        { id: 26, category: "Améliorations", item: "Feu de camp principal", resource: "Vache", total: 1, current: 0 },
-        { id: 27, category: "Sacoches", item: "Sacoche de médicaments et Feu de camp", resource: "Wapiti", total: 2, current: 0 },
-        { id: 28, category: "Sacoches", item: "Sacoche de médicaments et Feu de camp", resource: "Wapiti (bois)", total: 1, current: 0 }
+        { id: 23, category: "Améliorations", item: "Feu de camp principal <br><small style='color: var(--text-muted); font-weight: normal;'>(Couverture de siège du feu de camp)</small>", resource: "Renard", total: 1, current: 0 },
+        { id: 24, category: "Sacoches", item: "Sacoche de matériaux, Quartiers d'Arthur et Quartiers de John <br><small style='color: var(--text-muted); font-weight: normal;'>(Table et Tapis en peau de sanglier)</small>", resource: "Sanglier", total: 6, current: 0 },
+        { id: 25, category: "Améliorations", item: "Feu de camp principal <br><small style='color: var(--text-muted); font-weight: normal;'>(Caisse de banjo en peau de serpent)</small>", resource: "Serpent", total: 2, current: 0 },
+        { id: 26, category: "Améliorations", item: "Feu de camp principal <br><small style='color: var(--text-muted); font-weight: normal;'>(Tapis de sol en peau de vache)</small>", resource: "Vache", total: 1, current: 0 },
+        { id: 27, category: "Sacoches", item: "Sacoche de fortifiants et Sacoche de nécessaires", resource: "Wapiti", total: 2, current: 0 },
+        { id: 28, category: "Sacoches", item: "Feu de camp des sentinelles <br><small style='color: var(--text-muted); font-weight: normal;'>(Bois de wapiti)</small>", resource: "Wapiti (bois)", total: 1, current: 0 }
     ],
 
     receleur: [
@@ -586,26 +586,117 @@ function makeStarsHtml(current, total, onClickFnStr) {
 function renderCamp() {
     let tbody = document.querySelector('#table-camp tbody');
     tbody.innerHTML = '';
-    db.camp.forEach(item => {
-        let isComplete = item.current >= item.total;
-        let tr = document.createElement('tr');
-        if (isComplete) tr.className = 'row-complete';
 
-        let resName = item.resource;
-        let mainPart = resName;
-        let extraPart = "";
+    // 1. Détection du filtre actif
+    let activeFilter = 'all';
+    let activePill = document.querySelector('.filter-pill.active');
+    if (activePill) {
+        activeFilter = activePill.dataset.filter;
+    }
 
-        if (resName.includes("(")) {
-            mainPart = resName.split("(")[0].trim();      
-            extraPart = "<br><small style='font-weight:normal; color:var(--text-muted);'>(" + resName.split("(")[1] + "</small>"; 
-        }
+    // 2. VUE "TOUT AFFICHER" (Classique, de A à Z avec les étoiles/boutons)
+    if (activeFilter === 'all') {
+        db.camp.forEach(item => {
+            let isComplete = item.current >= item.total;
+            let tr = document.createElement('tr');
+            if (isComplete) tr.className = 'row-complete';
 
-        tr.innerHTML = `
-            <td>${item.item}</td>
-            <td>${mainPart} ${extraPart}</td>
-            <td>${makeStarsHtml(item.current, item.total, `updateQty('camp', ${item.id}, QTY)`)}</td>
+            let resName = item.resource;
+            let mainPart = resName;
+            let extraPart = "";
+
+            if (resName.includes("(")) {
+                mainPart = resName.split("(")[0].trim();
+                extraPart = "<br><small style='font-weight:normal; color:var(--text-muted);'>(" + resName.split("(")[1] + "</small>";
+            }
+
+            tr.innerHTML = `
+                <td>${item.item}</td>
+                <td>${mainPart} ${extraPart}</td>
+                <td>${makeStarsHtml(item.current, item.total, `updateQty('camp', ${item.id}, QTY)`)}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+        return; // On stoppe l'exécution ici pour la vue classique
+    }
+
+    // 3. VUE FILTRÉE (Le Menu de Pearson Exact)
+    const categoryConfigs = {
+        sacoches: [
+            { group: "Sacoche pour fortifiants", items: [{ id: 4, label: "Biche" }, { id: 9, label: "Cerf" }, { id: 27, label: "Wapiti" }] },
+            { group: "Sacoche d'ingrédients", items: [{ id: 4, label: "Biche" }, { id: 6, label: "Blaireau" }, { id: 13, label: "Écureuil" }] },
+            { group: "Sacoche de nécessaires", items: [{ id: 4, label: "Biche" }, { id: 20, label: "Panthère" }, { id: 27, label: "Wapiti" }] },
+            { group: "Sacoche de provisions", items: [{ id: 4, label: "Biche" }, { id: 5, label: "Bison" }, { id: 22, label: "Raton laveur" }] },
+            { group: "Sacoche de matériaux", items: [{ id: 4, label: "Biche" }, { id: 14, label: "Iguane" }, { id: 24, label: "Sanglier" }] },
+            { group: "Sacoche d'objets de valeur", items: [{ id: 4, label: "Biche" }, { id: 8, label: "Castor" }, { id: 15, label: "Lapin" }] },
+            { group: "Sacoche de Légende de l'Est", items: [{ id: 4, label: "Biche" }, { id: 12, label: "Couguar" }, { id: 16, label: "Loup" }] }
+        ],
+        quartiers: [
+            { group: "Quartiers d'Arthur", items: [{ id: 1, label: "Crâne d'alligator" }, { id: 18, label: "Crâne de mouflon" }, { id: 12, label: "Coffre recouvert de peau de couguar" }, { id: 24, label: "Table recouverte de peau de sanglier" }, { id: 7, label: "Tapis en peau de bœuf" }] },
+            { group: "Quartiers de John", items: [{ id: 24, label: "Tapis en peau de sanglier" }] }
+        ],
+        ameliorations: [
+            { group: "Tables du camp", items: [{ id: 2, label: "Nappe en cuir d'antilope" }] },
+            { group: "Chariot garde-manger", items: [{ id: 3, label: "Crâne d'antilope" }] },
+            { group: "Feu de camp principal", items: [{ id: 19, label: "Bois d'orignal" }, { id: 17, label: "Crâne de loup" }, { id: 25, label: "Caisse de banjo" }, { id: 8, label: "Couverture de siège (Castor)" }, { id: 21, label: "Couverture de siège (Rat musqué)" }, { id: 23, label: "Couverture de siège (Renard)" }, { id: 16, label: "Couverture du trône du feu de camp" }, { id: 26, label: "Tapis de sol en peau de vache" }] },
+            { group: "Feu de camp des sentinelles", items: [{ id: 11, label: "Tapis de sol pour feu de camp" }, { id: 28, label: "Bois de wapiti" }, { id: 10, label: "Ossements décoratifs" }] }
+        ]
+    };
+
+    let currentConfig = categoryConfigs[activeFilter];
+    if (!currentConfig) return;
+
+    let renderCounts = {};
+
+    currentConfig.forEach(groupBlock => {
+        // Ligne d'en-tête (Nom de la Sacoche / du Quartier)
+        let trGroup = document.createElement('tr');
+        trGroup.innerHTML = `
+            <td colspan="3" style="background: rgba(139,0,0,0.08); font-weight: bold; font-size: 1.1em; color: var(--text-color); border-bottom: 2px solid #8b0000; padding: 12px 15px;">
+                ${groupBlock.group}
+            </td>
         `;
-        tbody.appendChild(tr);
+        tbody.appendChild(trGroup);
+
+        // Lignes des peaux associées
+        groupBlock.items.forEach(req => {
+            let dbItem = db.camp.find(i => i.id === req.id);
+            if (!dbItem) return;
+
+            let tr = document.createElement('tr');
+            let actionHtml = '';
+
+            // Si c'est l'onglet Sacoche, on met les cases à cocher
+            if (activeFilter === 'sacoches') {
+                renderCounts[req.id] = (renderCounts[req.id] || 0) + 1;
+                let isChecked = renderCounts[req.id] <= dbItem.current;
+                
+                if (isChecked) tr.className = 'row-complete';
+
+                actionHtml = `
+                    <td style="text-align: center;">
+                        <input type="checkbox" ${isChecked ? 'checked' : ''} 
+                            onchange="toggleCampCheckbox(${req.id}, this.checked)" 
+                            style="width: 22px; height: 22px; cursor: pointer; accent-color: #8b0000;">
+                    </td>
+                `;
+            } 
+            // Si c'est n'importe quel autre onglet (Quartiers, Améliorations...), on remet le système d'étoiles normal
+            else {
+                if (dbItem.current >= dbItem.total) tr.className = 'row-complete';
+                actionHtml = `<td>${makeStarsHtml(dbItem.current, dbItem.total, `updateQty('camp', ${req.id}, QTY)`)}</td>`;
+            }
+
+            // Affichage propre sans les flèches
+            let mobileContext = `<div class="mobile-filter-context" style="margin-top: 4px; font-size: 0.85em; color: #a98d6f;">Pour : ${groupBlock.group}</div>`;
+
+            tr.innerHTML = `
+                <td style="padding-left: 35px; font-weight: 500; color: var(--text-color);">${req.label}</td>
+                <td>${dbItem.resource.split('(')[0].trim()} ${mobileContext}</td>
+                ${actionHtml}
+            `;
+            tbody.appendChild(tr);
+        });
     });
 }
 
@@ -2661,3 +2752,37 @@ function clearMapSearch() {
         filterMapMarkers();
     }
 }
+
+// --- ÉCOUTEURS POUR LES BOUTONS FILTRES DU CAMP ---
+document.querySelectorAll('.filter-pill').forEach(pill => {
+    pill.addEventListener('click', function() {
+        // On retire la couleur rouge de tous les boutons
+        document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+        // On met en rouge uniquement le bouton sur lequel on vient de cliquer
+        this.classList.add('active');
+        // On demande à l'application de redessiner le tableau avec ce nouveau filtre !
+        renderCamp();
+    });
+});
+
+// --- FONCTION POUR LES CASES À COCHER DU CAMP ---
+window.toggleCampCheckbox = function(id, isChecked) {
+    let item = db.camp.find(i => i.id === id);
+    if (!item) return;
+
+    // Si on coche et qu'on n'a pas dépassé le max, on ajoute 1 au total global
+    if (isChecked && item.current < item.total) {
+        item.current++;
+    } 
+    // Si on décoche et qu'on est au-dessus de 0, on enlève 1 au total global
+    else if (!isChecked && item.current > 0) {
+        item.current--;
+    }
+
+    // On sauvegarde et on met à jour l'écran
+    if (typeof saveToLocalStorage === 'function') saveToLocalStorage();
+    if (typeof saveData === 'function') saveData();
+    renderCamp();
+    if (typeof updateDashboard === 'function') updateDashboard();
+    if (typeof renderGlobalHuntingList === 'function') renderGlobalHuntingList();
+};

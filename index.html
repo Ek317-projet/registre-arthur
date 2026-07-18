@@ -280,6 +280,15 @@
 
         <section id="view-camp" class="view-section">
             <button class="mobile-toggle-btn" onclick="toggleColumn('table-camp', this)">👁️ Afficher les objets à débloquer</button>
+
+            <!-- FILTRES DU CAMP DE BASE -->
+            <div class="camp-filters">
+                <button class="filter-pill active" data-filter="all">Tout afficher</button>
+                <button class="filter-pill" data-filter="sacoches">Sacoches</button>
+                <button class="filter-pill" data-filter="ameliorations">Améliorations du camp</button>
+                <button class="filter-pill" data-filter="quartiers">Quartiers</button>
+            </div>
+
             <div class="data-table-container">
                 <table class="data-table mobile-hide-col1" id="table-camp">
                     <thead>

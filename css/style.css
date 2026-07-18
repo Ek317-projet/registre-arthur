@@ -3396,13 +3396,67 @@ header {
     animation: rdr2-item-add 1s ease-out forwards;
 }
 
+/* --- DESIGN DES BOUTONS FILTRES (PILULES) --- */
+.camp-filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    
+    /* Permet de glisser au doigt sur téléphone sans casser l'écran */
+    overflow-x: auto; 
+    padding-bottom: 5px;
+    
+    /* Cache la barre de défilement pour faire plus propre */
+    scrollbar-width: none; 
+}
+
+.camp-filters::-webkit-scrollbar {
+    display: none; /* Cache la barre sur Chrome/Safari */
+}
+
+/* Le design du bouton inactif */
+.filter-pill {
+    background: transparent;
+    border: 2px solid #8b0000; /* Un contour rouge sombre RDR2 */
+    color: var(--text-color);
+    padding: 8px 20px;
+    border-radius: 30px; /* Bords très arrondis (pilule) */
+    font-size: 14px;
+    font-weight: bold;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap; /* Empêche le texte de se couper en deux lignes sur téléphone */
+    transition: all 0.2s ease-in-out;
+}
+
+/* Le design au survol de la souris */
+.filter-pill:hover {
+    background: rgba(139, 0, 0, 0.1); /* Léger fond rouge au passage de la souris */
+}
+
+/* Le design du bouton actif (celui cliqué) */
+.filter-pill.active {
+    background: #8b0000; /* Fond totalement rouge */
+    color: white; /* Texte blanc pour bien ressortir */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3); /* Petite ombre pour donner du relief */
+}
+
 /* --- OPTIMISATION GRAND ÉCRAN (PC) --- */
 @media (min-width: 1024px) {
-    /* 1. L'application utilise tout l'écran */
+    /* 1. L'application ET l'en-tête s'élargissent sur tout l'écran */
+    .header-container,
     .main-container {
         max-width: 96% !important; 
         width: 100% !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
     }
+
+    /* On redonne de l'air (30px) entre l'en-tête et le contenu */
+    .main-container {
+        margin-top: 30px !important; 
+    }
+
 
     /* 2. Le Dashboard garde sa taille classique et reste centré */
     #view-dashboard {
@@ -3481,3 +3535,8 @@ header {
         text-align: center !important;
     }
 }
+
+/* Cache l'astuce textuelle puisqu'on voit déjà la première colonne sur PC */
+    .mobile-filter-context {
+        display: none !important;
+    }
