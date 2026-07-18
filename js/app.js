@@ -92,7 +92,7 @@ const initialData = {
         { id: 9, category: "Sacoches", item: "Sacoche de médicaments et feu de camp", resource: "Cerf", total: 1, current: 0 },
         { id: 10, category: "Sacoches", item: "Sacoche de médicaments et Feu de camp", resource: "Cerf (bois)", total: 1, current: 0 },
         { id: 11, category: "Améliorations", item: "Feu de camp des sentinelles", resource: "Chèvre", total: 2, current: 0 },
-        { id: 12, category: "Sacoches", item: "Sacoche de Légende de l'Est", resource: "Cougar", total: 3, current: 0 },
+        { id: 12, category: "Sacoches", item: "Sacoche de Légende de l'Est", resource: "Couguar", total: 3, current: 0 },
         { id: 13, category: "Sacoches", item: "Sacoche d'ingrédients", resource: "Écureuil", total: 1, current: 0 },
         { id: 14, category: "Sacoches", item: "Sacoche de matériaux", resource: "Iguane", total: 1, current: 0 },
         { id: 15, category: "Sacoches", item: "Sacoche d'objets de valeur", resource: "Lapin", total: 1, current: 0 },
@@ -116,7 +116,7 @@ const initialData = {
         { id: 106, type: "Amulette", name: "Amulette Corne de Tatanka", resource: "Bison Tatanka Légendaire", isTalisman: false, checked: false },
         { id: 107, type: "Amulette", name: "Amulette Dent de castor", resource: "Castor Légendaire", isTalisman: false, checked: false },
         { id: 101, type: "Amulette", name: "Amulette Bois de cerf", resource: "Cerf Légendaire", isTalisman: false, checked: false },
-        { id: 108, type: "Amulette", name: "Amulette Dent de cougar", resource: "Couguar Légendaire", isTalisman: false, checked: false },
+        { id: 108, type: "Amulette", name: "Amulette Dent de couguar", resource: "Couguar Légendaire", isTalisman: false, checked: false },
         { id: 109, type: "Amulette", name: "Amulette Dent de coyote", resource: "Coyote Légendaire", isTalisman: false, checked: false },
         { id: 112, type: "Amulette", name: "Amulette Patte de lion", resource: "Lion Légendaire", isTalisman: false, checked: false },
         { id: 113, type: "Amulette", name: "Amulette Cœur de loup", resource: "Loup Légendaire", isTalisman: false, checked: false },
@@ -159,7 +159,7 @@ const initialData = {
         { id: 206, group: "Peaux Parfaites", resource: "Biche", info: "Gilet, Chapeau, Jambières", total: 5, current: 0 },
         { id: 207, group: "Peaux Parfaites", resource: "Bison", info: "Chapeau, Vestes", total: 3, current: 0 },
         { id: 208, group: "Légendaires", resource: "Bison Blanc Légendaire", info: "Chapeau, Veste", total: 1, current: 0 },
-        { id: 209, group: "Légendaires", resource: "Bison de Tatanka Légendaire", info: "Gilet, Jambières, Bottes", total: 1, current: 0 },
+        { id: 209, group: "Légendaires", resource: "Bison Tatanka Légendaire", info: "Gilet, Jambières, Bottes", total: 1, current: 0 },
         { id: 210, group: "Petites Peaux", resource: "Blaireau", info: "Gants, Chapeau", total: 2, current: 0 },
         { id: 211, group: "Peaux Parfaites", resource: "Bœuf", info: "Veste, Bottes, Jambières", total: 3, current: 0 },
         { id: 212, group: "Plumes / Éléments", resource: "Bruant", info: "Accessoires", total: 4, current: 0 },
@@ -176,8 +176,8 @@ const initialData = {
         { id: 224, group: "Plumes / Éléments", resource: "Condor", info: "Accessoires", total: 1, current: 0 },
         { id: 225, group: "Plumes / Éléments", resource: "Corbeau", info: "Chapeau, Accessoires", total: 13, current: 0 },
         { id: 226, group: "Plumes / Éléments", resource: "Corneille", info: "Accessoires", total: 2, current: 0 },
-        { id: 227, group: "Peaux Parfaites", resource: "Cougar", info: "Redingote, Selle, Gilet", total: 4, current: 0 },
-        { id: 228, group: "Légendaires", resource: "Cougar Légendaire", info: "Gilet, Chapeau, Gants", total: 1, current: 0 },
+        { id: 227, group: "Peaux Parfaites", resource: "Couguar", info: "Redingote, Selle, Gilet", total: 4, current: 0 },
+        { id: 228, group: "Légendaires", resource: "Couguar Légendaire", info: "Gilet, Chapeau, Gants", total: 1, current: 0 },
         { id: 229, group: "Peaux Parfaites", resource: "Coyote", info: "Veste, Chapeau", total: 3, current: 0 },
         { id: 230, group: "Légendaires", resource: "Coyote Légendaire", info: "Chapeau, Jambières", total: 1, current: 0 },
         { id: 231, group: "Peaux Parfaites", resource: "Opossum", info: "Chapeau", total: 4, current: 0 },
@@ -236,7 +236,14 @@ const initialData = {
 // =========================================================
 // --- HISTORY & DB INITIALIZATION ---
 // =========================================================
-let db = JSON.parse(localStorage.getItem('rdr2_tracker_db')) || JSON.parse(JSON.stringify(initialData));
+let db;
+try {
+    let localData = localStorage.getItem('rdr2_tracker_db');
+    db = localData ? JSON.parse(localData) : structuredClone(initialData);
+} catch (e) {
+    console.error("Erreur critique de lecture de la sauvegarde. Chargement des données par défaut pour éviter le crash.", e);
+    db = structuredClone(initialData);
+}
 
 if (!db.history) db.history = [];
 if (db.history.length === 0) {
@@ -248,7 +255,7 @@ if (db.history.length === 0) {
     localStorage.setItem('rdr2_tracker_db', JSON.stringify(db));
 }
 
-function saveDB(actionLabel = null) {
+function saveDB(actionLabel = null, preventRender = false) {
     if (actionLabel) {
         db.history.push({
             timestamp: Date.now(),
@@ -258,7 +265,11 @@ function saveDB(actionLabel = null) {
         if (db.history.length > 20) db.history.shift();
     }
     localStorage.setItem('rdr2_tracker_db', JSON.stringify(db));
-    renderAll();
+    
+    // Si on demande de ne PAS re-rendre globalement, on ignore renderAll()
+    if (!preventRender) {
+        renderAll();
+    }
 }
 
 function triggerUndo() {
@@ -852,21 +863,122 @@ function renderStock() {
     window.lastAddedStockItem = null;
 }
 
+// =========================================================
+// --- SYNCHRONISATION INTELLIGENTE DU STOCK ---
+// =========================================================
+
+function getBaseAnimalName(itemName) {
+    let norm = normalizeStr(itemName);
+    
+    // Dictionnaire ultra-précis pour forcer la liaison des composants de Talismans
+    const exactMatches = {
+        "dent d'alligator legendaire": "Alligator Légendaire",
+        "corne de bison legendaire": "Bison Blanc Légendaire",
+        "griffe d'ours legendaire": "Ours Légendaire",
+        "defense de sanglier legendaire": "Sanglier Légendaire"
+    };
+
+    if (exactMatches[norm]) {
+        return exactMatches[norm];
+    }
+    
+    // Dictionnaire de secours pour les Amulettes et autres animaux
+    const legendariesMap = {
+        "alligator": "Alligator Légendaire",
+        "antilope": "Antilope Légendaire",
+        "blanc": "Bison Blanc Légendaire",
+        "tatanka": "Bison Tatanka Légendaire",
+        "castor": "Castor Légendaire",
+        "cerf": "Cerf Légendaire",
+        "couguar": "Couguar Légendaire",
+        "cougar": "Couguar Légendaire", 
+        "coyote": "Coyote Légendaire",
+        "lion": "Lion Légendaire",
+        "loup": "Loup Légendaire",
+        "mouflon": "Mouflon Légendaire",
+        "orignal": "Orignal Légendaire",
+        "ours": "Ours Légendaire",
+        "panthere": "Panthère Légendaire",
+        "renard": "Renard Légendaire",
+        "sanglier": "Sanglier Légendaire",
+        "wapiti": "Wapiti Légendaire"
+    };
+
+    if (norm.includes("legendaire") || norm.includes("tatanka") || norm.includes("lion")) {
+        for (let key in legendariesMap) {
+            if (norm.includes(key)) {
+                return legendariesMap[key];
+            }
+        }
+    }
+    return itemName;
+}
+
+function syncStockAutomatique(rawResourceName, delta) {
+    if (!rawResourceName || delta === 0) return;
+    
+    let baseName = getBaseAnimalName(rawResourceName);
+    let normName = normalizeStr(baseName);
+    
+    let stockIndex = db.stock.findIndex(s => normalizeStr(s.resource) === normName);
+
+    if (delta > 0) {
+        // Validation (+) : On RETIRE du stock
+        if (stockIndex !== -1) {
+            db.stock[stockIndex].qty -= delta;
+            if (db.stock[stockIndex].qty <= 0) {
+                db.stock.splice(stockIndex, 1);
+            }
+        }
+    } else if (delta < 0) {
+        // Annulation (-) : On REMET dans le stock
+        let amountToAdd = Math.abs(delta);
+        if (stockIndex !== -1) {
+            db.stock[stockIndex].qty += amountToAdd;
+        } else {
+            db.stock.push({ resource: baseName, qty: amountToAdd });
+        }
+    }
+}
+
 function updateQty(category, id, newQty) {
     let item = db[category].find(x => x.id === id);
     if (!item) return;
     if (newQty < 0 || newQty > item.total) return;
 
     let oldQty = item.current;
+    let delta = newQty - oldQty; 
     item.current = newQty;
-    saveDB(`Modification quantité de ${item.resource || item.name} : ${oldQty} ➔ ${newQty}`);
+    
+    // Synchronise le stock
+    syncStockAutomatique(item.resource, delta);
+    
+    saveDB(`Modification quantité de ${item.resource || item.name} : ${oldQty} ➔ ${newQty}`, true);
+    
+    if (category === 'camp') renderCamp();
+    if (category === 'trappeur') renderTrappeur();
+    
+    renderDashboard();
+    renderHuntingList();
+    renderStock();
 }
 
 function toggleTalismanComponent(id, compIdx) {
     let talisman = db.receleur.find(x => x.id === id);
     if (talisman && talisman.components[compIdx]) {
-        talisman.components[compIdx].checked = !talisman.components[compIdx].checked;
-        saveDB(`Composant Talisman coché/décoché : ${talisman.components[compIdx].name}`);
+        let comp = talisman.components[compIdx];
+        comp.checked = !comp.checked;
+        
+        // Synchronise le stock
+        let delta = comp.checked ? 1 : -1;
+        syncStockAutomatique(comp.name, delta);
+
+        saveDB(`Composant Talisman coché/décoché : ${comp.name}`, true);
+        
+        renderReceleur();
+        renderDashboard();
+        renderHuntingList();
+        renderStock();
     }
 }
 
@@ -874,7 +986,17 @@ function toggleAmuletCheck(id) {
     let amulette = db.receleur.find(x => x.id === id);
     if (amulette) {
         amulette.checked = !amulette.checked;
-        saveDB(`Amulette cochée/décochée : ${amulette.name}`);
+        
+        // Synchronise le stock
+        let delta = amulette.checked ? 1 : -1;
+        syncStockAutomatique(amulette.resource, delta);
+
+        saveDB(`Amulette cochée/décochée : ${amulette.name}`, true);
+        
+        renderReceleur();
+        renderDashboard();
+        renderHuntingList();
+        renderStock();
     }
 }
 
@@ -1027,16 +1149,19 @@ function checkSmartAllocation() {
     if (isLegendary) {
         let firstWord = inputVal.replace("legendaire", "").trim().split(" ")[0]; 
         
-        db.receleur.forEach(item => {
-            if (item.isTalisman) {
-                item.components.forEach((comp, idx) => {
-                    let compNorm = normalizeStr(comp.name);
-                    if (compNorm.includes(firstWord) && compNorm.includes("legendaire") && !comp.checked) {
-                        needsTalisman.push({ talismanId: item.id, compIdx: idx, name: comp.name });
-                    }
-                });
-            }
-        });
+        // CORRECTION : On s'assure qu'un animal a bien été tapé (pas juste "légendaire")
+        if (firstWord.length > 0) {
+            db.receleur.forEach(item => {
+                if (item.isTalisman) {
+                    item.components.forEach((comp, idx) => {
+                        let compNorm = normalizeStr(comp.name);
+                        if (compNorm.includes(firstWord) && compNorm.includes("legendaire") && !comp.checked) {
+                            needsTalisman.push({ talismanId: item.id, compIdx: idx, name: comp.name });
+                        }
+                    });
+                }
+            });
+        }
     }
 
     let qtyInput = document.getElementById('stock-qty');
@@ -1664,7 +1789,7 @@ function initOrUpdateMap() {
             { nom: "Bison Tatanka Légendaire", coords: [1742, 3725], desc: "Trappeur / Receleur" },
             { nom: "Castor Légendaire", coords: [4159, 6844], desc: "Trappeur / Receleur" },
             { nom: "Cerf Légendaire", coords: [3784, 3162], desc: "Trappeur / Receleur" },
-            { nom: "Cougar Légendaire", coords: [1494, 712], desc: "Trappeur / Receleur" },
+            { nom: "Couguar Légendaire", coords: [1494, 712], desc: "Trappeur / Receleur" },
             { nom: "Coyote Légendaire", coords: [3311, 5770], desc: "Trappeur / Receleur" },
             { nom: "Loup Légendaire", coords: [5048, 5185], desc: "Trappeur / Receleur" },
             { nom: "Mouflon Légendaire", coords: [4325, 4402], desc: "Trappeur / Receleur" },

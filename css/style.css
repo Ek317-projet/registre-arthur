@@ -3398,17 +3398,86 @@ header {
 
 /* --- OPTIMISATION GRAND ÉCRAN (PC) --- */
 @media (min-width: 1024px) {
-    /* 1. On permet à l'application de s'étaler sur la largeur */
+    /* 1. L'application utilise tout l'écran */
     .main-container {
-        max-width: 1500px !important; 
-        width: 95% !important;
+        max-width: 96% !important; 
+        width: 100% !important;
     }
 
-    /* 2. On répartit parfaitement l'espace de la page Stock */
+    /* 2. Le Dashboard garde sa taille classique et reste centré */
+    #view-dashboard {
+        max-width: 1100px !important;
+        margin: 0 auto !important;
+    }
+
+    /* 3. EN-TÊTE : Alignement forcé aux extrêmes */
+    .header-grid {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
+    
+    .h-left {
+        flex: 1 !important;
+        display: flex !important;
+        justify-content: flex-start !important;
+    }
+    
+    .h-search {
+        flex: 0 0 450px !important;
+        margin: 0 25px 0 0 !important;
+    }
+    
+    .h-menu {
+        flex: 0 0 auto !important;
+        display: flex !important;
+        justify-content: flex-end !important;
+    }
+
+    /* 4. PAGE STOCK : Proportions */
     .stock-interface {
         display: grid !important;
-        grid-template-columns: 350px 1fr !important; /* 350px à gauche, tout le reste à droite */
-        gap: 40px !important;
+        grid-template-columns: 450px 1fr !important;
+        gap: 50px !important;
         align-items: start !important;
+    }
+
+    /* ========================================================= */
+    /* --- HARMONISATION PARFAITE DU TABLEAU (SYMÉTRIE)      --- */
+    /* ========================================================= */
+    
+    /* Colonne GAUCHE : Alignement parfait de l'en-tête et du texte */
+    .data-table-container #table-stock th:nth-child(1),
+    .data-table-container #table-stock td:nth-child(1) {
+        text-align: left !important;
+        padding-left: 40px !important; /* Force la marge à 40px pour les deux */
+    }
+
+    /* Colonne DROITE : Alignement parfait de l'en-tête et des boutons */
+    .data-table-container #table-stock th:nth-child(3),
+    .data-table-container #table-stock td:nth-child(3) {
+        text-align: right !important;
+        padding-right: 40px !important; /* Force la marge à 40px pour les deux */
+    }
+
+    /* Le conteneur des boutons */
+    #table-stock td:nth-child(3) .action-buttons {
+        display: flex !important;
+        flex-direction: column !important; /* Garde les boutons empilés */
+        align-items: flex-end !important; /* <--- LE CORRECTIF EST LÀ : Pousse les boutons à l'extrême droite ! */
+        justify-content: center !important;
+        width: 100% !important;
+        gap: 6px !important;
+    }
+
+    /* Standardisation de la taille des boutons pour un rendu "propre" */
+    #table-stock td:nth-child(3) .btn-action,
+    #table-stock td:nth-child(3) .btn-del {
+        min-width: 130px !important;
+        width: 130px !important; /* Fixe la même largeur pour tous les boutons */
+        padding: 8px 12px !important;
+        margin: 0 !important;
+        text-align: center !important;
     }
 }
