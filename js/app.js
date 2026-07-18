@@ -649,35 +649,32 @@ function renderCamp() {
     let renderCounts = {};
 
     currentConfig.forEach(groupBlock => {
-        // Ligne d'en-tête (Nom du groupe)
-        let trGroup = document.createElement('tr');
+        let groupItemsElements = []; 
+        let isGroupComplete = true; 
         
-        // ASTUCE ICI : On a ajouté "display: table-cell !important;" pour forcer l'affichage sur mobile
-        trGroup.innerHTML = `
-            <td colspan="3" style="display: table-cell !important; background: rgba(139,0,0,0.08); font-weight: bold; font-size: 1.1em; color: var(--text-color); border-bottom: 2px solid #8b0000; padding: 12px 15px;">
-                ${groupBlock.group}
-            </td>
-        `;
-        tbody.appendChild(trGroup);
+        // --- ASTUCE : On va stocker ici les noms des animaux pour les cacher dans le titre ---
+        let hiddenKeywords = []; 
 
-        // Lignes des peaux associées
         groupBlock.items.forEach(req => {
             let dbItem = db.camp.find(i => i.id === req.id);
             if (!dbItem) return;
+
+            // On ajoute l'animal à notre liste de mots cachés
+            hiddenKeywords.push(req.label.toLowerCase(), dbItem.resource.toLowerCase());
 
             let tr = document.createElement('tr');
             let actionHtml = '';
             let firstColumnHtml = '';
 
-            // Si c'est l'onglet Sacoches : on vide la 1ère colonne et on met les cases
+            // Si c'est l'onglet Sacoches
             if (activeFilter === 'sacoches') {
                 renderCounts[req.id] = (renderCounts[req.id] || 0) + 1;
                 let isChecked = renderCounts[req.id] <= dbItem.current;
                 
+                if (!isChecked) isGroupComplete = false; 
                 if (isChecked) tr.className = 'row-complete';
 
                 firstColumnHtml = `<td></td>`;
-
                 actionHtml = `
                     <td style="text-align: center;">
                         <input type="checkbox" ${isChecked ? 'checked' : ''} 
@@ -686,22 +683,42 @@ function renderCamp() {
                     </td>
                 `;
             } 
-            // Si c'est Quartiers ou Améliorations : on garde le texte et les étoiles
+            // Si c'est Quartiers ou Améliorations
             else {
+                if (dbItem.current < dbItem.total) isGroupComplete = false;
                 if (dbItem.current >= dbItem.total) tr.className = 'row-complete';
                 
                 firstColumnHtml = `<td style="padding-left: 35px; font-weight: 500; color: var(--text-color);">${req.label}</td>`;
                 actionHtml = `<td>${makeStarsHtml(dbItem.current, dbItem.total, `updateQty('camp', ${req.id}, QTY)`)}</td>`;
             }
 
-            // On a supprimé le texte "mobileContext" redondant !
             tr.innerHTML = `
                 ${firstColumnHtml}
                 <td>${dbItem.resource.split('(')[0].trim()}</td>
                 ${actionHtml}
             `;
-            tbody.appendChild(tr);
+            groupItemsElements.push(tr);
         });
+
+        // Génération de l'en-tête de groupe
+        let trGroup = document.createElement('tr');
+        let groupStyle = "display: table-cell !important; background: rgba(139,0,0,0.08); font-weight: bold; font-size: 1.1em; color: var(--text-color); border-bottom: 2px solid #8b0000; padding: 12px 15px;";
+        
+        if (isGroupComplete) {
+            groupStyle += " text-decoration: line-through; opacity: 0.6;";
+        }
+
+        // --- MAGIE : Le texte invisible qui trompe la barre de recherche ---
+        let hiddenSpan = `<span style="font-size: 0; opacity: 0; position: absolute; pointer-events: none;">${hiddenKeywords.join(' ')}</span>`;
+
+        trGroup.innerHTML = `
+            <td colspan="3" style="${groupStyle}">
+                ${groupBlock.group} ${hiddenSpan}
+            </td>
+        `;
+        tbody.appendChild(trGroup);
+
+        groupItemsElements.forEach(tr => tbody.appendChild(tr));
     });
 }
 
@@ -2761,11 +2778,24 @@ function clearMapSearch() {
 // --- ÉCOUTEURS POUR LES BOUTONS FILTRES DU CAMP ---
 document.querySelectorAll('.filter-pill').forEach(pill => {
     pill.addEventListener('click', function() {
-        // On retire la couleur rouge de tous les boutons
+        // On retire la couleur rouge de tous les boutons et on active le bon
         document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-        // On met en rouge uniquement le bouton sur lequel on vient de cliquer
         this.classList.add('active');
-        // On demande à l'application de redessiner le tableau avec ce nouveau filtre !
+
+        // --- NOUVEAU : On vide la barre de recherche automatiquement ---
+        let searchInput = document.getElementById('global-search');
+        if (searchInput && searchInput.value !== '') {
+            searchInput.value = ''; // Efface le texte
+            
+            // On simule une saisie clavier pour que l'application comprenne qu'il n'y a plus de texte
+            searchInput.dispatchEvent(new Event('input')); 
+            
+            // On cache la petite croix de la barre de recherche si elle existe
+            let clearBtn = document.getElementById('clear-search-btn');
+            if (clearBtn) clearBtn.style.display = 'none';
+        }
+
+        // On redessine le tableau
         renderCamp();
     });
 });
