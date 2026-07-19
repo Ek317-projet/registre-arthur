@@ -570,6 +570,18 @@ header {
     table.mobile-hide-col1 td:nth-child(1) {
         display: none;
     }
+
+    /* Masquer la colonne 1 (Camp et Trappeur) par défaut */
+    table.mobile-hide-col1 th:nth-child(1),
+    table.mobile-hide-col1 td:nth-child(1) {
+        display: none;
+    }
+
+    /* Cache également la dernière colonne (Statut / Progression) par défaut sur mobile */
+    table.mobile-hide-col1 th:last-child,
+    table.mobile-hide-col1 td:last-child {
+        display: none !important;
+    }
     
     /* Les colonnes restantes prennent 50% de l'écran chacune */
     table.mobile-hide-col1 th:nth-child(2), table.mobile-hide-col1 td:nth-child(2) { width: 50%; }
