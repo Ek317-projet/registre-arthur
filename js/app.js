@@ -2564,7 +2564,7 @@ function initOrUpdateMap() {
             if (subMenu) subMenu.classList.remove('force-show-children'); // Ferme l'accordéon des trésors
         });
 
-        // 🛠️ OUTIL DÉVELOPPEUR AMÉLIORÉ : Afficher et copier les coordonnées au clic
+        /*// 🛠️ OUTIL DÉVELOPPEUR AMÉLIORÉ : Afficher et copier les coordonnées au clic
         rdr2Map.on('click', function(e) {
             let lat = Math.round(e.latlng.lat);
             let lng = Math.round(e.latlng.lng);
@@ -2587,7 +2587,7 @@ function initOrUpdateMap() {
                 popupDev.style.opacity = "0";
                 setTimeout(() => popupDev.remove(), 300);
             }, 2000);
-        });
+        });*/
 
         function forceCoverZoom() {
             let mapSize = rdr2Map.getSize();
