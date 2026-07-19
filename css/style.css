@@ -577,11 +577,6 @@ header {
         display: none;
     }
 
-    /* Cache également la dernière colonne (Statut / Progression) par défaut sur mobile */
-    table.mobile-hide-col1 th:last-child,
-    table.mobile-hide-col1 td:last-child {
-        display: none !important;
-    }
     
     /* Les colonnes restantes prennent 50% de l'écran chacune */
     table.mobile-hide-col1 th:nth-child(2), table.mobile-hide-col1 td:nth-child(2) { width: 50%; }
@@ -727,6 +722,16 @@ header {
     /* 7. Quand on affiche les noms (swipe), le texte redevient 100% horizontal */
     #table-receleur.mobile-show-col1 .checkbox-item span {
         white-space: nowrap !important;
+    }
+
+    /* 8. EMPÊCHER LE SWIPE : Masquer le statut UNIQUEMENT pour les Talismans en mode réduit */
+    #table-receleur.mobile-hide-col1 tr.row-talisman td:nth-child(3) {
+        display: none !important;
+    }
+
+    /* On donne l'espace libéré à la colonne des composants (38% pour le nom + 62% = 100%) */
+    #table-receleur.mobile-hide-col1 tr.row-talisman td:nth-child(2) {
+        width: 62% !important;
     }
 
 }
@@ -1782,15 +1787,24 @@ body[class*="theme-rdr2"] .data-table td .breakdown-item i {
         align-items: flex-end !important;
         gap: 4px !important;
     }
+    
     #table-stock .btn-action {
-        width: 95px !important;
-        min-width: 95px !important;
-        min-height: 26px !important;
-        padding: 4px 8px !important;
-        font-size: 0.75rem !important;
+        white-space: nowrap !important; /* Interdit formellement au texte de passer à la ligne */
+        width: 110px !important; /* Un tout petit peu plus large pour faire rentrer le texte sur une ligne */
+        height: 32px !important; /* Hauteur VERROUILLÉE pour que le bouton Jeter fasse la même taille */
+        min-height: 32px !important;
+        padding: 0 10px !important; 
+        font-size: 0.75rem !important; 
         margin: 0 !important;
-        text-align: center !important;
-        justify-content: center !important;
+        display: flex !important; /* Flexbox permet de centrer parfaitement le contenu */
+        align-items: center !important; 
+        justify-content: center !important; 
+        gap: 4px !important; /* Petit espace entre l'icône et le texte */
+    }
+
+    /* ASTUCE : Si l'application génère un vrai saut de ligne HTML (<br>), on le supprime ! */
+    #table-stock .btn-action br {
+        display: none !important;
     }
 }
 
