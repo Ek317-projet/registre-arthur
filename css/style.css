@@ -1787,7 +1787,7 @@ body[class*="theme-rdr2"] .data-table td .breakdown-item i {
         align-items: flex-end !important;
         gap: 4px !important;
     }
-    
+
     #table-stock .btn-action {
         white-space: nowrap !important; /* Interdit formellement au texte de passer à la ligne */
         width: 110px !important; /* Un tout petit peu plus large pour faire rentrer le texte sur une ligne */
@@ -2632,6 +2632,26 @@ body.theme-rdr2-light #global-search {
     opacity: 1 !important;
     pointer-events: auto !important;
     z-index: 9999 !important; /* Force ces éléments à rester au premier plan */
+}
+
+/* ========================================================= */
+/* --- POINTS MINUSCULES (CHEMIN TRÉSOR CROQUIS)         --- */
+/* ========================================================= */
+.rdr2-spawn-dot-mini {
+    background-color: #4CAF50 !important; 
+    border: 1px solid #1a1a1a !important; /* Bordure très fine pour ne pas masquer le vert */
+    border-radius: 50% !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.8) !important;
+    opacity: 1 !important;
+    width: 4px !important;  /* Taille minuscule forcée */
+    height: 4px !important; /* Taille minuscule forcée */
+}
+
+/* On s'assure qu'ils disparaissent/apparaissent correctement comme les autres */
+.map-hiding-mode .leaflet-marker-icon.rdr2-spawn-dot-mini {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 9999 !important;
 }
 
 /* =========================================
@@ -3566,3 +3586,68 @@ header {
     .mobile-filter-context {
         display: none !important;
     }
+
+    /* ========================================================= */
+/* --- LIGHTBOX (AGRANDISSEMENT DES IMAGES CARTE)        --- */
+/* ========================================================= */
+.lightbox-overlay {
+    display: none; /* Caché par défaut */
+    position: fixed;
+    z-index: 100000; /* Pour passer par-dessus l'en-tête et la carte Leaflet */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85); /* Fond noir semi-transparent */
+    backdrop-filter: blur(4px); /* Petit effet de flou en arrière-plan */
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.lightbox-overlay.show {
+    display: flex; /* Affiche la boîte */
+    opacity: 1;
+}
+
+.lightbox-content {
+    max-width: 95%;
+    max-height: 90vh; /* Ne dépasse pas 90% de la hauteur de l'écran */
+    border-radius: 6px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+    border: 2px solid #e3dcc8; /* Bordure couleur parchemin */
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.lightbox-overlay.show .lightbox-content {
+    transform: scale(1); /* Effet de zoom fluide à l'ouverture */
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.lightbox-close:hover {
+    color: #8b0000; /* Devient rouge RDR2 au survol */
+}
+
+/* Effet au survol des images dans les petites bulles de la carte */
+.popup-clickable-img {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.popup-clickable-img:hover {
+    transform: scale(1.03); /* L'image grossit légèrement quand on passe la souris dessus */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.8) !important;
+}
+    

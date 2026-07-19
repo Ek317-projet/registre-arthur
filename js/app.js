@@ -956,9 +956,9 @@ function renderStock() {
                 <td><strong>${item.resource}</strong></td>
                 <td>
                     <div style="display: flex; align-items: center; justify-content: center; gap: 5px;">
-                        <button class="btn-mini" onclick="adjustStockQty(${index}, -1)">-</button>
+                        <button class="btn-mini" ${isLegendary ? 'style="opacity: 0.3; cursor: not-allowed;"' : `onclick="adjustStockQty(${index}, -1)"`}>-</button>
                         <span style="font-weight:bold; min-width: 25px; text-align: center;">${item.qty}</span>
-                        <button class="btn-mini" onclick="adjustStockQty(${index}, 1)">+</button>
+                        <button class="btn-mini" ${isLegendary ? 'style="opacity: 0.3; cursor: not-allowed;"' : `onclick="adjustStockQty(${index}, 1)"`}>+</button>
                     </div>
                 </td>
                 <td>
@@ -1286,12 +1286,25 @@ function checkSmartAllocation() {
 
     let totalVendorsNeeding = campQtyNeeded + trapQtyNeeded + recQtyNeeded + talismanQtyNeeded;
 
+    // --- NOUVEAU CALCUL : Déduire ce qu'on a déjà en stock ---
+    let baseName = getBaseAnimalName(rawInput);
+    let normInputBase = normalizeStr(baseName);
+    let existingStockQty = 0;
+    let existingStockItem = db.stock.find(s => normalizeStr(s.resource) === normInputBase);
+    if (existingStockItem) {
+        existingStockQty = existingStockItem.qty;
+    }
+    // C'est ce chiffre qui définit combien de parties on doit ENCORE trouver dans la nature
+    let remainingNeededToAdd = totalVendorsNeeding - existingStockQty;
+    // ---------------------------------------------------------
+
     if (isLegendary) {
         qtyInput.readOnly = true;
         qtyInput.style.opacity = "0.6"; 
         qtyInput.style.cursor = "not-allowed";
         if (window.lastCheckedAnimal !== inputVal) {
-            qtyInput.value = totalVendorsNeeding > 0 ? totalVendorsNeeding : 1;
+            // On propose seulement le reste nécessaire (et on ne descend pas sous 0)
+            qtyInput.value = remainingNeededToAdd > 0 ? remainingNeededToAdd : 0;
             window.lastCheckedAnimal = inputVal; 
         }
     } else {
@@ -1306,6 +1319,16 @@ function checkSmartAllocation() {
 
     btnsContainer.innerHTML = '';
     let realName = rawInput.charAt(0).toUpperCase() + rawInput.slice(1);
+    
+    // --- NOUVELLE SÉCURITÉ : Bloque si on a déjà tout le légendaire ---
+    if (isLegendary && remainingNeededToAdd <= 0) {
+        btnsContainer.innerHTML = `<div style="color: #ff4c4c; font-size: 1rem; margin-bottom: 10px; text-align: center; font-weight: bold;">Vous possédez déjà toutes les parties de cet animal légendaire !</div>
+        <div style="color: var(--text-muted); font-size: 0.85rem; text-align: center;">Utilisez le tableau du stock ci-dessous pour distribuer ce qu'il vous reste.</div>`;
+        btnsContainer.innerHTML += `<button class="btn-action" style="background-color: transparent; border: 1px solid var(--text-muted); color: var(--text-color); margin-top: 15px;" onclick="clearStockInput()">❌ Annuler la saisie</button>`;
+        box.style.display = 'block';
+        return; // Stoppe l'exécution ici, n'affiche pas les autres boutons !
+    }
+    // ------------------------------------------------------------------
     
     if (totalVendorsNeeding === 0) {
         btnsContainer.innerHTML += `<div style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 10px; text-align: center; font-style: italic;">Plus aucun marchand n'en a besoin.</div>`;
@@ -1886,6 +1909,8 @@ function initOrUpdateMap() {
         let calqueCroquis = L.layerGroup().addTo(rdr2Map);
         let calquePanoramique = L.layerGroup().addTo(rdr2Map);
         let calqueStatues = L.layerGroup().addTo(rdr2Map);
+        let calqueOpulence = L.layerGroup().addTo(rdr2Map);
+        let calqueTueur = L.layerGroup().addTo(rdr2Map);
         
         let iconAnimalLeg = L.divIcon({
             className: '', 
@@ -2076,6 +2101,47 @@ function initOrUpdateMap() {
             popupAnchor: [0, -18] 
         });
 
+        let svgTueur = `
+        <svg viewBox="0 0 32 32" style="width:30px; height:30px; filter: drop-shadow(2px 3px 4px rgba(0,0,0,0.6));">
+            <!-- Parchemin déchiré -->
+            <path d="M6 6 L22 8 L24 26 L14 24 L10 27 L4 23 Z" fill="#e3dcc8" stroke="#1a1a1a" stroke-width="1.5" stroke-linejoin="round"/>
+            
+            <!-- Lignes de la carte -->
+            <path d="M8 11 Q12 9 16 13 T22 11" fill="none" stroke="#a39581" stroke-width="1"/>
+            <path d="M6 16 Q10 19 14 16 T20 19" fill="none" stroke="#a39581" stroke-width="1"/>
+            
+            <!-- Taches de sang (Couleur rouge bordeaux) -->
+            <path d="M11 14 Q15 11 17 16 T14 21 T10 17 Z" fill="#8a1a19" opacity="0.9"/>
+            <circle cx="19" cy="19" r="1.5" fill="#8a1a19" opacity="0.9"/>
+            <circle cx="9" cy="19" r="1" fill="#8a1a19" opacity="0.9"/>
+            <circle cx="16" cy="23" r="1.2" fill="#8a1a19" opacity="0.9"/>
+            
+            <!-- Vrai Couteau de chasse planté -->
+            <g transform="translate(11, 20) rotate(45)">
+                <!-- Lame -->
+                <path d="M 0 0 L -2.5 -3 L -2.5 -12 L 2.5 -12 L 2.5 -5 Q 2.5 -1 0 0 Z" fill="#c0c0c0" stroke="#1a1a1a" stroke-width="1"/>
+                <!-- Sang sur la lame -->
+                <path d="M 0 0 L -2.5 -3 L -2.5 -6 Q -1 -5 0 -6 Q 1.5 -5 2.5 -6 L 2.5 -5 Q 2.5 -1 0 0 Z" fill="#8a1a19" stroke="#1a1a1a" stroke-width="1"/>
+                <!-- Reflet sur le dos de la lame -->
+                <line x1="-1" y1="-11" x2="-1" y2="-3" stroke="#ffffff" stroke-width="0.5" opacity="0.7"/>
+                <!-- Garde du couteau (symétrique) -->
+                <rect x="-4.5" y="-14" width="9" height="2" rx="1" fill="#1a1a1a"/>
+                <!-- Manche en bois -->
+                <rect x="-2.5" y="-23" width="5" height="9" rx="1" fill="#3e2312" stroke="#1a1a1a" stroke-width="1"/>
+                <!-- Rivets du manche -->
+                <circle cx="0" cy="-20" r="0.8" fill="#1a1a1a"/>
+                <circle cx="0" cy="-16" r="0.8" fill="#1a1a1a"/>
+            </g>
+        </svg>`;
+
+        let iconTueur = L.divIcon({
+            className: 'rdr2-pin-container',
+            html: svgTueur,
+            iconSize: [30, 30],
+            iconAnchor: [15, 15], 
+            popupAnchor: [0, -15] 
+        });
+
         const listeTresors = [
             { nom: "Départ : Bande de Jack Hall", coords: [3440, 4656], desc: "Acheter/Voler la carte à Maximo" },
             { nom: "Trésor de la bande de Jack Hall 1", coords: [3924, 4810], desc: "Trouver la carte 2 (Caliban's Seat)" },
@@ -2092,22 +2158,34 @@ function initOrUpdateMap() {
             { nom: "Trésor aux grands enjeux 2", coords: [4911, 4383], desc: "Trouver la carte 3 (Barrow Lagoon)" },
             { nom: "Trésor aux grands enjeux 3", coords: [4889, 5381], desc: "Récompense (Lingots d'or à Bacchus Station)" },
             
-            { nom: "Départ : Trésor des morts", coords: [3603, 4840], desc: "Trouver la carte à Limpany (Prison)" },
-            { nom: "Trésor des morts 1", coords: [2621, 6793], desc: "Trouver la carte 2 (Saint Denis)" },
-            { nom: "Trésor des morts 2", coords: [2937, 7056], desc: "Récompense finale (Lingots d'or)" },
+            { nom: "Départ : Trésor des morts", coords: [3603, 4840], desc: "Trouver la carte à Limpany (Prison)<br><i>(Uniquement avec la précommande/Édition Spéciale)</i>" },
+            { nom: "Trésor des morts 1", coords: [2621, 6793], desc: "Trouver la carte 2 (Saint Denis)<br><i>(Uniquement avec la précommande/Édition Spéciale)</i>" },
+            { nom: "Trésor des morts 2", coords: [2937, 7056], desc: "Récompense finale (Lingots d'or)<br><i>(Uniquement avec la précommande/Édition Spéciale)</i>" },
             
-            { nom: "Carte d'Otis Miller 1", coords: [5015, 7297], desc: "Morceau de carte de l'Ermite (Nord d'Annesburg)" },
-            { nom: "Carte d'Otis Miller 2", coords: [4575, 3221], desc: "Morceau de carte de l'Ermite (Nord-Ouest de Wallace Station)" },
-            { nom: "Trésor d'Otis Miller", coords: [2117, 1856], desc: "Récompense (Revolver de Miller à Cholla Springs)" },
+            { nom: "Carte déchirée 1 (Otis Miller)", coords: [5015, 7297], desc: "Morceau de carte de l'Ermite (Nord d'Annesburg)" },
+            { nom: "Carte déchirée 2 (Otis Miller)", coords: [4575, 3221], desc: "Morceau de carte de l'Ermite (Nord-Ouest de Wallace Station)" },
+            { nom: "Carte reconstituée (Trésor d'Otis Miller)", coords: [2117, 1856], desc: "Récompense (Revolver de Miller à Cholla Springs)" },
             
             { nom: "Départ : Trésor des croquis", coords: [4950, 7155], desc: "Trouver la carte (Reed Cottage)" },
-            { nom: "Trésor des croquis", coords: [4486, 6772], desc: "Récompense (Lingot d'or à Elysian Pool)" },
+            { nom: "Trésor des croquis", coords: [4464, 6759], desc: "Récompense (Lingot d'or à Elysian Pool)" },
             
             { nom: "Départ : Carte panoramique", coords: [5062, 3909], desc: "Trouver la carte sur le couple gelé (Colter)" },
             { nom: "Emplacement Carte panoramique", coords: [3730, 3649], desc: "Mystère du Mont Shann" },
 
-            { nom: "Indice : Fresque des statues (Window Rock)", coords: [4887, 4956] },
-            { nom: "Trésor : Grotte des statues étranges", coords: [5123, 5666] }
+            { nom: "Indice : Fresque des statues (Window Rock)", coords: [4887, 4956], desc: `La fresque se trouve à l'intérieur de l'arche.<br><img src="images/fresque-statues.png" class="popup-clickable-img" onclick="openLightbox(this.src)" style="width: 220px; border-radius: 4px; border: 1px solid #1a1a1a; margin-top: 8px; box-shadow: 1px 2px 4px rgba(0,0,0,0.4);">` },
+            { nom: "Trésor : Grotte des statues étranges", coords: [5123, 5666], desc: `Entrée de la grotte :<br><img src="images/entree-grotte.png" class="popup-clickable-img" onclick="openLightbox(this.src)" style="width: 220px; border-radius: 4px; border: 1px solid #1a1a1a; margin-top: 4px; margin-bottom: 8px; box-shadow: 1px 2px 4px rgba(0,0,0,0.4);"><br>La salle des statues :<br><img src="images/salle-statues.png" class="popup-clickable-img" onclick="openLightbox(this.src)" style="width: 220px; border-radius: 4px; border: 1px solid #1a1a1a; margin-top: 4px; box-shadow: 1px 2px 4px rgba(0,0,0,0.4);">` },
+        
+            { nom: "Départ : Jalons de l'opulence", coords: [3613, 2924], desc: "Examiner l'Obélisque (Nord-Ouest de Strawberry)" },
+            { nom: "Jalons de l'opulence 1", coords: [3172, 6847], desc: "Trouver la carte 2 (Minuscule église de Lemoyne)" },
+            { nom: "Jalons de l'opulence 2", coords: [5048, 5623], desc: "Trouver la carte 3 (Maison mystérieuse, Ambarino)" },
+            { nom: "Jalons de l'opulence 3", coords: [2374, 6176], desc: "Trouver la carte 4 (Arbre mort de Bolger Glade)" },
+            { nom: "Trésor de l'opulence", coords: [3776, 3494], desc: "Récompense finale (Cadran solaire du Mont Shann)" },
+
+            { nom: "Indice du tueur 1", coords: [4076, 4956], desc: "Morceau de carte (Sous le pont au Sud de Valentine)" },
+            { nom: "Indice du tueur 2", coords: [3884, 4023], desc: "Morceau de carte (Sur un rocher au Sud de Wallace Station)" },
+            { nom: "Indice du tueur 3", coords: [2288, 6132], desc: "Morceau de carte (Grand arbre au Sud de Rhodes)" },
+            { nom: "L'énigme du tueur (Cave)", coords: [4097, 4629], desc: "Affronter Edmund Lowry Jr. (Lucky's Cabin)" },
+        
         ];
 
         const spawnsGrandsEnjeux = [
@@ -2125,18 +2203,62 @@ function initOrUpdateMap() {
             }
         });
 
+        // --- NOUVEAU : Tracé du Trésor des Croquis (au clic) ---
+        let calqueCheminCroquis = L.layerGroup();
+        let cheminCroquisVisible = false;
+
+        let iconCroixRouge = L.divIcon({
+            className: 'rdr2-pin-container rdr2-special-toggle', // rdr2-special-toggle empêche la croix de disparaître
+            html: `<svg viewBox="0 0 24 24" style="width:20px; height:20px; filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.6));">
+                    <line x1="4" y1="4" x2="20" y2="20" stroke="#8a1a19" stroke-width="4" stroke-linecap="round"/>
+                    <line x1="20" y1="4" x2="4" y2="20" stroke="#8a1a19" stroke-width="4" stroke-linecap="round"/>
+                   </svg>`,
+            iconSize: [20, 20], iconAnchor: [10, 10], popupAnchor: [0, -10]
+        });
+
+        let iconPasVertPetit = L.divIcon({ 
+            className: 'rdr2-spawn-dot-mini', // On utilise la NOUVELLE classe CSS
+            iconSize: [4, 4], // Taille 4x4
+            iconAnchor: [2, 2] // Centrage (moitié de la taille)
+        });
+
+        // Calcul exact pour arriver sur tes coordonnées [4480, 6764]
+        let latAct = 4464;
+        let lngAct = 6759;
+        let pasNord = (4480 - 4464) / 20; // Exactement 0.8
+        let pasEst = (6764 - 6759) / 5;   // Exactement 1.0
+
+        for(let i = 1; i <= 20; i++) {
+            latAct += pasNord;
+            L.marker([latAct, lngAct], { icon: iconPasVertPetit }).addTo(calqueCheminCroquis);
+        }
+        for(let i = 1; i <= 5; i++) {
+            lngAct += pasEst;
+            L.marker([latAct, lngAct], { icon: iconPasVertPetit }).addTo(calqueCheminCroquis);
+        }
+
+        L.marker([latAct, lngAct], { icon: iconCroixRouge })
+            .bindPopup(`<div style="text-align:center;"><b>Le Lingot d'Or</b><br><small style="color:#666;">Trésor des croquis : 20 pas au Nord, 5 pas à l'Est.</small></div>`)
+            .addTo(calqueCheminCroquis);
+        // --------------------------------------------------------
+
         listeTresors.forEach(tresor => {
             if (tresor.coords[0] !== 0 && tresor.coords[1] !== 0) {
                 
                 let iconeAUtiliser = iconTreasure;
                 let estLeDiamantSpecial = (tresor.nom === "Départ : Trésor aux grands enjeux");
+                let estDiamantCroquis = (tresor.nom === "Trésor des croquis"); // On isole ton trésor
                 let estUneCarte = tresor.nom.includes("Carte panoramique");
+                let estUnParchemin = tresor.nom.includes("Indice du tueur") || tresor.nom.includes("énigme du tueur");
 
                 if (estUneCarte) {
                     iconeAUtiliser = iconCarte;
+                } else if (estUnParchemin) {
+                    iconeAUtiliser = iconTueur; // On utilise la nouvelle icône avec le couteau
                 }
 
-                if (estLeDiamantSpecial) {
+                // On applique le style cliquable aux deux diamants spéciaux
+                if (estLeDiamantSpecial || estDiamantCroquis) {
                     iconeAUtiliser = L.divIcon({
                         className: 'rdr2-pin-container rdr2-special-toggle', 
                         html: svgDiamantOr, 
@@ -2150,7 +2272,6 @@ function initOrUpdateMap() {
 
                 if (estLeDiamantSpecial) {
                     marqueur.bindTooltip("Cliquez pour voir les apparitions possibles", {direction: 'top'});
-                    
                     marqueur.on('click', function(e) {
                         modeSpawnActif = !modeSpawnActif; 
                         let mapContainer = document.getElementById('map-container');
@@ -2162,6 +2283,20 @@ function initOrUpdateMap() {
                         } else {
                             mapContainer.classList.remove('map-hiding-mode');
                             carteActuelle.removeLayer(calqueSpawnsEnjeux);
+                        }
+                    });
+
+                } else if (estDiamantCroquis) {
+                    // Nouveau comportement exclusif pour le Trésor des Croquis
+                    marqueur.bindTooltip("Cliquez pour afficher le chemin vers le lingot", {direction: 'top'});
+                    marqueur.on('click', function(e) {
+                        cheminCroquisVisible = !cheminCroquisVisible;
+                        let carteActuelle = e.target._map;
+                        
+                        if (cheminCroquisVisible) {
+                            calqueCheminCroquis.addTo(carteActuelle);
+                        } else {
+                            carteActuelle.removeLayer(calqueCheminCroquis);
                         }
                     });
 
@@ -2180,11 +2315,15 @@ function initOrUpdateMap() {
                 else if (tresor.nom.includes("croquis") || tresor.nom.includes("Croquis")) { calqueCible = calqueCroquis; keywordTresor = "croquis"; }
                 else if (tresor.nom.includes("panoramique") || tresor.nom.includes("Panoramique")) { calqueCible = calquePanoramique; keywordTresor = "panoramique"; }
                 else if (tresor.nom.includes("statues") || tresor.nom.includes("Statues") || tresor.nom.includes("Statues étranges")) { calqueCible = calqueStatues; keywordTresor = "statues"; }
+                else if (tresor.nom.includes("opulence") || tresor.nom.includes("Opulence")) { calqueCible = calqueOpulence; keywordTresor = "opulence"; }
+                else if (tresor.nom.includes("tueur") || tresor.nom.includes("Tueur")) { calqueCible = calqueTueur; keywordTresor = "tueur"; }
 
                 marqueur.addTo(calqueCible);
                 window.allMapMarkersCollection.push({ marker: marqueur, name: tresor.nom, cat: "tresor carte " + keywordTresor, parentLayer: calqueCible });
             }
         });
+
+        
 
         // =========================================================
         // --- ATTRAPE-RÊVES ---
@@ -2291,10 +2430,13 @@ function initOrUpdateMap() {
             "<span class='map-category-child'>• La Piste Empoisonnée</span>": calquePisteEmpoisonnee,
             "<span class='map-category-child'>• Trésor aux Grands Enjeux</span>": calqueGrandsEnjeux,
             "<span class='map-category-child'>• Trésor des Morts</span>": calqueMorts,
-            "<span class='map-category-child'>• Trésor d'Otis Miller</span>": calqueOtisMiller,
+            "<span class='map-category-child'>• Trésor d'Otis Miller<span style='display: block; font-size: 0.75em; opacity: 0.7; margin-left: 12px; margin-top: -5px; line-height: 1; text-transform: none;'>(Cartes déchirées)</span></span>": calqueOtisMiller,
             "<span class='map-category-child'>• Trésor des Croquis</span>": calqueCroquis,
+            "<span class='map-category-child'>• Jalons de l'Opulence</span>": calqueOpulence,
+            "<span class='map-category-child'>• L'énigme du Tueur</span>": calqueTueur,
             "<span class='map-category-child'>• Carte Panoramique</span>": calquePanoramique,
             "<span class='map-category-child'>• Statues Étranges</span>": calqueStatues,
+
             
             "<span class='map-category-main'><span class='map-icon'>🕸️</span> ATTRAPE-RÊVES</span>": calqueAttrapeReves,
 
@@ -2323,6 +2465,8 @@ function initOrUpdateMap() {
                     if(!rdr2Map.hasLayer(calqueCroquis)) rdr2Map.addLayer(calqueCroquis);
                     if(!rdr2Map.hasLayer(calquePanoramique)) rdr2Map.addLayer(calquePanoramique);
                     if(!rdr2Map.hasLayer(calqueStatues)) rdr2Map.addLayer(calqueStatues);
+                    if(!rdr2Map.hasLayer(calqueOpulence)) rdr2Map.addLayer(calqueOpulence);
+                    if(!rdr2Map.hasLayer(calqueTueur)) rdr2Map.addLayer(calqueTueur);
 
                     // 3. On restaure l'ouverture de la liste si elle était ouverte
                     let newOverlays = document.querySelector('.leaflet-control-layers-overlays');
@@ -2347,6 +2491,8 @@ function initOrUpdateMap() {
                     if(rdr2Map.hasLayer(calqueCroquis)) rdr2Map.removeLayer(calqueCroquis);
                     if(rdr2Map.hasLayer(calquePanoramique)) rdr2Map.removeLayer(calquePanoramique);
                     if(rdr2Map.hasLayer(calqueStatues)) rdr2Map.removeLayer(calqueStatues);
+                    if(rdr2Map.hasLayer(calqueOpulence)) rdr2Map.removeLayer(calqueOpulence);
+                    if(rdr2Map.hasLayer(calqueTueur)) rdr2Map.removeLayer(calqueTueur);
 
                     // 3. On restaure l'ouverture de la liste
                     let newOverlays = document.querySelector('.leaflet-control-layers-overlays');
@@ -2387,7 +2533,7 @@ function initOrUpdateMap() {
             let allLayers = [
                 calqueAnimauxLeg, calquePoissonsLeg, calqueOs, calqueParentTresors, 
                 calqueJackHall, calquePisteEmpoisonnee, calqueGrandsEnjeux, calqueMorts, 
-                calqueOtisMiller, calqueCroquis, calquePanoramique, calqueStatues, calqueAttrapeReves, calqueReperes
+                calqueOtisMiller, calqueCroquis, calquePanoramique, calqueStatues, calqueAttrapeReves, calqueReperes, calqueOpulence, calqueTueur
             ];
 
             btnHide.addEventListener('click', function(e) {
@@ -2418,7 +2564,7 @@ function initOrUpdateMap() {
             if (subMenu) subMenu.classList.remove('force-show-children'); // Ferme l'accordéon des trésors
         });
 
-        /*// 🛠️ OUTIL DÉVELOPPEUR AMÉLIORÉ : Afficher et copier les coordonnées au clic
+        // 🛠️ OUTIL DÉVELOPPEUR AMÉLIORÉ : Afficher et copier les coordonnées au clic
         rdr2Map.on('click', function(e) {
             let lat = Math.round(e.latlng.lat);
             let lng = Math.round(e.latlng.lng);
@@ -2441,7 +2587,7 @@ function initOrUpdateMap() {
                 popupDev.style.opacity = "0";
                 setTimeout(() => popupDev.remove(), 300);
             }, 2000);
-        });*/
+        });
 
         function forceCoverZoom() {
             let mapSize = rdr2Map.getSize();
@@ -2820,4 +2966,37 @@ window.toggleCampCheckbox = function(id, isChecked) {
     renderCamp();
     if (typeof updateDashboard === 'function') updateDashboard();
     if (typeof renderGlobalHuntingList === 'function') renderGlobalHuntingList();
+};
+
+// =========================================================
+// --- LIGHTBOX (AGRANDISSEMENT DES IMAGES DE LA CARTE)  ---
+// =========================================================
+
+// On injecte le code HTML de la Lightbox de manière invisible au démarrage
+document.addEventListener('DOMContentLoaded', () => {
+    let lightbox = document.createElement('div');
+    lightbox.id = "image-lightbox";
+    lightbox.className = "lightbox-overlay";
+    lightbox.innerHTML = `
+        <span class="lightbox-close">&times;</span>
+        <img class="lightbox-content" id="lightbox-img">
+    `;
+    
+    // Quand on clique n'importe où sur le fond sombre, ça ferme l'image
+    lightbox.onclick = function() {
+        this.classList.remove('show');
+    };
+    
+    document.body.appendChild(lightbox);
+});
+
+// La fonction appelée quand on clique sur une image dans une bulle
+window.openLightbox = function(imageSrc) {
+    let lightbox = document.getElementById('image-lightbox');
+    let lightboxImg = document.getElementById('lightbox-img');
+    
+    if (lightbox && lightboxImg) {
+        lightboxImg.src = imageSrc; // On donne la bonne image à la grande boîte
+        lightbox.classList.add('show'); // On rend la boîte visible
+    }
 };
