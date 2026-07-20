@@ -571,6 +571,13 @@ header {
         display: none;
     }
 
+    /* CORRECTION : Ne SURTOUT PAS cacher le tiroir de recherche et de chasse ! */
+    table.mobile-hide-col1 tr.dynamic-search-detail td,
+    table.mobile-hide-col1 tr.hunting-details-row td {
+        display: table-cell !important;
+        width: 100% !important;
+    }
+
     /* Masquer la colonne 1 (Camp et Trappeur) par défaut */
     table.mobile-hide-col1 th:nth-child(1),
     table.mobile-hide-col1 td:nth-child(1) {
@@ -1442,7 +1449,7 @@ body[class*="theme-rdr2"] .search-bar input::placeholder {
     position: relative;
 }
 .search-bar input {
-    padding-right: 40px !important; /* Laisse de la place pour le X */
+    padding-right: 65px !important; /* Laisse de la place pour le X ET la cible */
 }
 .clear-search-btn {
     position: absolute;
@@ -1505,7 +1512,7 @@ body[class*="theme-rdr2"] .search-summary-box {
 }
 
 body[class*="theme-rdr2"] .hunting-breakdown-box {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: transparent !important; /* Le td s'occupe de la couleur maintenant */
     border-top: 1px dashed var(--border-color);
 }
 
@@ -1547,9 +1554,10 @@ body[class*="theme-rdr2"] #table-hunting-list tbody tr.hunting-main-row:nth-chil
     background-color: var(--table-stripe) !important; 
 }
 
-/* On assombrit très légèrement le fond du tiroir quand il s'ouvre pour le détacher du reste */
-body[class*="theme-rdr2"] #table-hunting-list tbody tr.hunting-details-row td {
-    background-color: rgba(20, 15, 10, 0.2) !important; 
+/* Harmonisation des sous-rubriques (Chasse et Recherche Globale) - Juste milieu très doux */
+body[class*="theme-rdr2"] #table-hunting-list tbody tr.hunting-details-row td,
+body[class*="theme-rdr2"] .data-table tbody tr.dynamic-search-detail td {
+    background-color: rgba(0, 0, 0, 0.08) !important; 
 }
 
 /* ========================================================= */
@@ -3447,13 +3455,26 @@ header {
     display: flex;
     gap: 12px;
     margin-bottom: 20px;
-    
-    /* Permet de glisser au doigt sur téléphone sans casser l'écran */
     overflow-x: auto; 
-    padding-bottom: 5px;
+    padding-bottom: 8px; /* Un peu plus d'espace pour la scrollbar */
     
-    /* Cache la barre de défilement pour faire plus propre */
-    scrollbar-width: none; 
+    /* Scrollbar pour Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-color) rgba(0, 0, 0, 0.1);
+}
+
+/* Scrollbar pour Chrome, Safari, et Mobile (Petit rectangle rouge) */
+.camp-filters::-webkit-scrollbar {
+    display: block !important; /* On annule le display: none précédent */
+    height: 4px; /* Très fine */
+}
+.camp-filters::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+.camp-filters::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 4px;
 }
 
 .camp-filters::-webkit-scrollbar {
@@ -3649,5 +3670,73 @@ header {
 .popup-clickable-img:hover {
     transform: scale(1.03); /* L'image grossit légèrement quand on passe la souris dessus */
     box-shadow: 0 4px 12px rgba(0,0,0,0.8) !important;
+}
+
+/* ========================================================= */
+/* --- AMÉLIORATION LISIBILITÉ DU TIROIR DE CHASSE       --- */
+/* ========================================================= */
+
+/* 1. On donne un peu plus de poids à la police (500 au lieu de normal) */
+body[class*="theme-rdr2"] .data-table td .breakdown-item,
+body[class*="theme-rdr2"] .data-table td .breakdown-item span,
+body[class*="theme-rdr2"] .data-table td .breakdown-item strong,
+body[class*="theme-rdr2"] .data-table td .breakdown-item i,
+body[class*="theme-rdr2"] .data-table td .breakdown-item div {
+    font-weight: 500 !important; 
+}
+
+/* 2. Thème CLAIR : On assombrit l'encre pour qu'elle ressorte sur le fond sombre du tiroir */
+body.theme-rdr2-light .data-table td .breakdown-item,
+body.theme-rdr2-light .data-table td .breakdown-item span,
+body.theme-rdr2-light .data-table td .breakdown-item strong,
+body.theme-rdr2-light .data-table td .breakdown-item i,
+body.theme-rdr2-light .data-table td .breakdown-item div {
+    color: rgba(20, 10, 5, 0.70) !important; /* Encre très foncée mais à 70% pour rester discrète */
+}
+
+/* 3. Thème SOMBRE : On éclaircit la couleur pour qu'elle ressorte sur le cuir */
+body.theme-rdr2-dark .data-table td .breakdown-item,
+body.theme-rdr2-dark .data-table td .breakdown-item span,
+body.theme-rdr2-dark .data-table td .breakdown-item strong,
+body.theme-rdr2-dark .data-table td .breakdown-item i,
+body.theme-rdr2-dark .data-table td .breakdown-item div {
+    color: rgba(240, 230, 210, 0.70) !important; 
+}
+
+/* ========================================================= */
+/* --- BARRE DE NAVIGATION MOBILE : LARGEUR ET SCROLLBAR --- */
+/* ========================================================= */
+@media (max-width: 768px) {
+    /* 1. Élargir la barre pour qu'elle dépasse le tableau */
+    nav.nav-bar {
+        left: 6px !important;
+        right: 6px !important;
+        
+        /* 2. Ajuster l'espacement interne pour faire de la place à la petite barre en bas */
+        padding: 8px 6px 14px 6px !important;
+        min-height: 68px !important;
+        
+        /* 3. Activer la scrollbar pour Firefox */
+        scrollbar-width: thin !important;
+        scrollbar-color: var(--accent-color) rgba(0,0,0,0.1) !important;
+    }
+
+    /* 4. Activer et styliser la petite barre rouge pour Chrome/Safari/Mobiles */
+    nav.nav-bar::-webkit-scrollbar {
+        display: block !important;
+        height: 4px !important;
+    }
+    
+    nav.nav-bar::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.1) !important;
+        border-radius: 4px !important;
+        /* La marge de 40px empêche la ligne rouge de taper dans les coins très arrondis de ta barre */
+        margin: 0 40px !important; 
+    }
+    
+    nav.nav-bar::-webkit-scrollbar-thumb {
+        background: var(--accent-color) !important;
+        border-radius: 4px !important;
+    }
 }
     

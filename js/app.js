@@ -589,14 +589,16 @@ function renderCamp() {
 
     // 1. Détection du filtre actif
     let activeFilter = 'all';
-    let activePill = document.querySelector('.filter-pill.active');
+    let activePill = document.querySelector('#filters-camp .filter-pill.active');
     if (activePill) {
         activeFilter = activePill.dataset.filter;
     }
 
-    // 2. VUE "TOUT AFFICHER" (Classique)
-    if (activeFilter === 'all') {
-        db.camp.forEach(item => {
+    // 2. VUE "TOUT AFFICHER" ou "RESTE À CHASSER"
+    if (activeFilter === 'all' || activeFilter === 'incomplete') {
+        let itemsToRender = activeFilter === 'all' ? db.camp : db.camp.filter(item => item.current < item.total);
+        
+        itemsToRender.forEach(item => {
             let isComplete = item.current >= item.total;
             let tr = document.createElement('tr');
             if (isComplete) tr.className = 'row-complete';
@@ -777,9 +779,22 @@ function renderReceleur() {
 function renderTrappeur() {
     let tbody = document.querySelector('#table-trappeur tbody');
     tbody.innerHTML = '';
-    db.trappeur.sort((a, b) => a.resource.localeCompare(b.resource));
+    
+    // Détection du filtre actif pour le Trappeur
+    let activeFilter = 'all';
+    let activePill = document.querySelector('#filters-trappeur .filter-pill.active');
+    if (activePill) {
+        activeFilter = activePill.dataset.filter;
+    }
 
-    db.trappeur.forEach(item => {
+    let itemsToRender = db.trappeur.slice().sort((a, b) => a.resource.localeCompare(b.resource));
+    
+    // Si on a cliqué sur "Reste à chasser", on filtre la liste
+    if (activeFilter === 'incomplete') {
+        itemsToRender = itemsToRender.filter(item => item.current < item.total);
+    }
+
+    itemsToRender.forEach(item => {
         let isComplete = item.current >= item.total;
         let tr = document.createElement('tr');
         if (isComplete) tr.className = 'row-complete';
@@ -1707,6 +1722,41 @@ function getAllSearchableTerms() {
     return Array.from(terms).filter(t => t).sort((a, b) => a.localeCompare(b, 'fr', { sensitivity: 'base' }));
 }
 
+window.toggleHuntingViewFromSearch = function(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    
+    let isHuntingActive = document.getElementById('view-hunting').classList.contains('active');
+    let dropdown = document.getElementById('global-search-dropdown');
+    if (dropdown) dropdown.style.display = 'none';
+
+    if (isHuntingActive) {
+        // --- RETOUR EN ARRIÈRE ---
+        if (window.previousNavBeforeHunting && window.previousViewIdBeforeHunting) {
+            switchView(window.previousViewIdBeforeHunting, window.previousViewTitleBeforeHunting, window.previousNavBeforeHunting, true);
+        } else {
+            // Sécurité : retour au Dashboard
+            let dashboardNav = document.querySelectorAll('.nav-item')[0];
+            switchView('dashboard', '🏠 Tableau de Bord', dashboardNav, true);
+        }
+        window.previousNavBeforeHunting = null; // On vide la mémoire après le retour
+    } else {
+        // --- ALLER VERS LA CHASSE ---
+        // On mémorise l'onglet actuel avant de partir
+        window.previousNavBeforeHunting = document.querySelector('.nav-item.active');
+        window.previousViewIdBeforeHunting = document.querySelector('.view-section.active').id.replace('view-', '');
+        window.previousViewTitleBeforeHunting = document.getElementById('view-title-text').innerText;
+        
+        let huntingNav = document.querySelectorAll('.nav-item')[5];
+        switchView('hunting', '🎯 Liste de Chasse Globale', huntingNav, true);
+    }
+    
+    // On relance la recherche pour rafraîchir l'icône et filtrer le nouveau tableau
+    setTimeout(handleSearch, 50);
+};
+
 function handleSearch() {
     let rawQ = document.getElementById('global-search').value;
     let q = rawQ.toLowerCase().trim();
@@ -1714,14 +1764,30 @@ function handleSearch() {
     
     let clearBtn = document.getElementById('clear-search-btn');
     let arrowBtn = document.getElementById('dropdown-toggle-btn');
+    let goHuntingBtn = document.getElementById('go-hunting-btn');
+    let iconToHunting = document.getElementById('icon-to-hunting');
+    let iconReturn = document.getElementById('icon-return');
+    let isHuntingActive = document.getElementById('view-hunting').classList.contains('active');
     
     if (clearBtn && arrowBtn) {
         if (q.length > 0) {
             clearBtn.style.display = 'flex';
             arrowBtn.style.display = 'none';
+            if (goHuntingBtn) {
+                goHuntingBtn.style.display = 'flex';
+                if (isHuntingActive && window.previousNavBeforeHunting) {
+                    if(iconToHunting) iconToHunting.style.display = 'none';
+                    if(iconReturn) iconReturn.style.display = 'block';
+                } else {
+                    if(iconToHunting) iconToHunting.style.display = 'block';
+                    if(iconReturn) iconReturn.style.display = 'none';
+                }
+            }
         } else {
             clearBtn.style.display = 'none';
             arrowBtn.style.display = 'flex';
+            if (goHuntingBtn) goHuntingBtn.style.display = 'none';
+            window.previousNavBeforeHunting = null; 
         }
     }
 
@@ -1737,10 +1803,89 @@ function handleSearch() {
         switchView('hunting', '🎯 Liste de Chasse Globale', huntingNav, false);
     }
 
+    // --- 1. Nettoyage des anciens tiroirs de recherche ---
+    document.querySelectorAll('.dynamic-search-detail').forEach(el => el.remove());
+
+    // --- 2. Préparation du tiroir de détails si on a trouvé un animal précis ---
+    let exactMatch = null;
+    let breakdownHtml = "";
+    
+    if (normQ.length > 1) {
+        exactMatch = allAnimalNames.find(a => normalizeStr(a) === normQ || normalizeStr(a.split('(')[0].trim()) === normQ);
+        if (!exactMatch) {
+            exactMatch = allAnimalNames.find(a => normalizeStr(a).includes(normQ));
+        }
+    }
+
+    if (exactMatch && normQ.length > 1) {
+        let baseName = exactMatch.split('(')[0].trim();
+        let normAnimal = normalizeStr(baseName);
+        
+        let cReq=0, cObt=0, tReq=0, tObt=0, rReq=0, rObt=0, stock=0;
+
+        db.camp.forEach(i => {
+            if (normalizeStr(i.resource).startsWith(normAnimal)) { cReq += (i.total || 0); cObt += (i.current || 0); }
+        });
+        db.trappeur.forEach(i => {
+            if (normalizeStr(i.resource).startsWith(normAnimal)) { tReq += (i.total || 0); tObt += (i.current || 0); }
+        });
+        db.receleur.forEach(i => {
+            if (!i.isTalisman && i.resource && normalizeStr(i.resource).startsWith(normAnimal)) {
+                rReq += 1; rObt += (i.checked ? 1 : 0);
+            } else if (i.isTalisman) {
+                i.components.forEach(c => {
+                    let cNorm = normalizeStr(c.name);
+                    if (cNorm.includes(normAnimal) && cNorm.includes("legendaire")) { rReq += 1; rObt += (c.checked ? 1 : 0); }
+                });
+            }
+        });
+        db.stock.forEach(i => {
+            if (normalizeStr(i.resource).startsWith(normAnimal)) { stock += i.qty; }
+        });
+
+        let campStr = cReq > 0 ? `(${cObt}/${cReq})` : '-';
+        let recStr = rReq > 0 ? `(${rObt}/${rReq})` : '-';
+        let trapStr = tReq > 0 ? `(${tObt}/${tReq})` : '-';
+
+        let isRDR = (typeof currentTheme !== 'undefined' && currentTheme.includes('rdr2'));
+        let iconCamp = isRDR ? '↟' : '🏕️';
+        let iconRec = isRDR ? '⚖\uFE0E' : '🦊';
+        let iconTrap = isRDR ? '⚒\uFE0E' : '🧥';
+        let iconStock = isRDR ? '⛃' : '📦';
+
+        breakdownHtml = `
+            <td colspan="MAX_COLS" style="padding: 0; border-top: 1px solid var(--border-color);">
+                <div class="hunting-breakdown-box" style="margin:0; border-radius: 0 0 6px 6px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
+                    <div class="breakdown-item" onclick="switchView('camp', '🏕️ Camp de Base', document.querySelectorAll('.nav-item')[1])">
+                        <div class="bd-label"><i class="theme-icon-camp" style="font-style:normal; margin-right:8px;">${iconCamp}</i>Camp de base</div> <div class="bd-value"><strong>${campStr}</strong></div>
+                    </div>
+                    <div class="breakdown-item" onclick="switchView('receleur', '🦊 Receleur', document.querySelectorAll('.nav-item')[2])">
+                        <div class="bd-label"><i class="theme-icon-rec" style="font-style:normal; margin-right:8px;">${iconRec}</i>Receleur</div> <div class="bd-value"><strong>${recStr}</strong></div>
+                    </div>
+                    <div class="breakdown-item" onclick="switchView('trappeur', '🧥 Trappeur', document.querySelectorAll('.nav-item')[3])">
+                        <div class="bd-label"><i class="theme-icon-trap" style="font-style:normal; margin-right:8px;">${iconTrap}</i>Trappeur</div> <div class="bd-value"><strong>${trapStr}</strong></div>
+                    </div>
+                    <div class="breakdown-item" onclick="switchView('stock', '📦 Gestion du Stock', document.querySelectorAll('.nav-item')[4])" style="color: ${stock > 0 ? '#4caf50' : 'var(--text-muted)'};">
+                        <div class="bd-label"><i class="theme-icon-stock" style="font-style:normal; margin-right:8px;">${iconStock}</i>Actuellement en stock</div> <div class="bd-value"><strong>${stock}</strong></div>
+                    </div>
+                </div>
+            </td>
+        `;
+    }
+
+    // --- 3. Filtrage du tableau et injection du tiroir ---
     document.querySelectorAll('.data-table tbody tr').forEach(tr => {
-        if (tr.classList.contains('hunting-details-row')) return;
+        // On ignore les tiroirs déjà existants
+        if (tr.classList.contains('hunting-details-row') || tr.classList.contains('dynamic-search-detail')) return;
+        
         let text = normalizeStr(tr.innerText);
-        let match = text.includes(normQ);
+        
+        // On vérifie que ce n'est pas un titre de catégorie (ex: "Améliorations")
+        let isGroupHeader = tr.querySelector('td') && tr.querySelector('td').colSpan > 2;
+        let isStockEmptyMessage = text.includes('stock est vide');
+
+        // Recherche par début de mot (évite d'afficher "Panthère" quand on tape "ant")
+        let match = text.startsWith(normQ) || text.includes(" " + normQ) || text.includes("'" + normQ) || text.includes("(" + normQ) || text.includes("\n" + normQ);
         tr.style.display = match ? '' : 'none';
 
         if (tr.classList.contains('hunting-main-row')) {
@@ -1749,8 +1894,160 @@ function handleSearch() {
                 if (match && normQ.length > 1) detailsRow.style.display = 'table-row'; 
                 else detailsRow.style.display = 'none'; 
             }
+        } 
+        // L'INJECTION MAGIQUE EST ICI :
+        else if (match && exactMatch && normQ.length > 1 && !isGroupHeader && !isStockEmptyMessage) {
+            let activeView = document.querySelector('.view-section.active');
+            if (activeView && ['view-camp', 'view-receleur', 'view-trappeur'].includes(activeView.id)) {
+                let baseNameNorm = normalizeStr(exactMatch.split('(')[0].trim());
+                if (text.includes(baseNameNorm)) {
+                    let detailsTr = document.createElement('tr');
+                    detailsTr.className = 'dynamic-search-detail'; // Pour pouvoir l'effacer à la prochaine touche tapée
+                    
+                    let cols = tr.querySelectorAll('td').length;
+                    detailsTr.innerHTML = breakdownHtml.replace('MAX_COLS', cols);
+                    
+                    tr.parentNode.insertBefore(detailsTr, tr.nextSibling);
+                }
+            }
         }
     });
+}
+
+// --- NOUVELLE FONCTION : RÉSUMÉ GLOBAL DANS LA RECHERCHE ---
+function updateSearchSummary(normQ) {
+    let summaryBox = document.getElementById('dynamic-search-summary');
+    if (!summaryBox) {
+        summaryBox = document.createElement('div');
+        summaryBox.id = 'dynamic-search-summary';
+        summaryBox.style.marginTop = "30px";
+        summaryBox.style.marginBottom = "20px";
+    }
+
+    let activeView = document.querySelector('.view-section.active');
+    // Affiche le résumé uniquement dans Camp, Receleur, Trappeur et Stock
+    if (!activeView || activeView.id === 'view-dashboard' || activeView.id === 'view-map' || activeView.id === 'view-hunting') {
+        summaryBox.style.display = 'none';
+        return;
+    }
+
+    if (normQ.length < 2) {
+        summaryBox.style.display = 'none';
+        return;
+    }
+
+    // Recherche de l'animal exact ou le plus pertinent
+    let exactMatch = allAnimalNames.find(a => normalizeStr(a) === normQ || normalizeStr(a.split('(')[0].trim()) === normQ);
+    if (!exactMatch) {
+        exactMatch = allAnimalNames.find(a => normalizeStr(a).includes(normQ));
+    }
+
+    if (exactMatch) {
+        let baseName = exactMatch.split('(')[0].trim();
+        let normAnimal = normalizeStr(baseName);
+        
+        let cReq=0, cObt=0, tReq=0, tObt=0, rReq=0, rObt=0, stock=0;
+
+        db.camp.forEach(i => {
+            if (normalizeStr(i.resource).startsWith(normAnimal)) {
+                cReq += (i.total || 0); cObt += (i.current || 0);
+            }
+        });
+        db.trappeur.forEach(i => {
+            if (normalizeStr(i.resource).startsWith(normAnimal)) {
+                tReq += (i.total || 0); tObt += (i.current || 0);
+            }
+        });
+        db.receleur.forEach(i => {
+            if (!i.isTalisman && i.resource && normalizeStr(i.resource).startsWith(normAnimal)) {
+                rReq += 1; rObt += (i.checked ? 1 : 0);
+            } else if (i.isTalisman) {
+                i.components.forEach(c => {
+                    let cNorm = normalizeStr(c.name);
+                    if (cNorm.includes(normAnimal) && cNorm.includes("legendaire")) {
+                        rReq += 1; rObt += (c.checked ? 1 : 0);
+                    }
+                });
+            }
+        });
+        db.stock.forEach(i => {
+            if (normalizeStr(i.resource).startsWith(normAnimal)) {
+                stock += i.qty;
+            }
+        });
+
+        let totalReq = cReq + tReq + rReq;
+        let totalObt = cObt + tObt + rObt;
+        let reste = Math.max(0, totalReq - totalObt);
+
+        // S'il n'y a aucun besoin et rien en stock, on masque
+        if (totalReq === 0 && stock === 0) {
+            summaryBox.style.display = 'none';
+            return;
+        }
+
+        let campStr = cReq > 0 ? `(${cObt}/${cReq})` : '-';
+        let recStr = rReq > 0 ? `(${rObt}/${rReq})` : '-';
+        let trapStr = tReq > 0 ? `(${tObt}/${tReq})` : '-';
+
+        let isRDR = (typeof currentTheme !== 'undefined' && currentTheme.includes('rdr2'));
+        let iconCamp = isRDR ? '↟' : '🏕️';
+        let iconRec = isRDR ? '⚖\uFE0E' : '🦊';
+        let iconTrap = isRDR ? '⚒\uFE0E' : '🧥';
+        let iconStock = isRDR ? '⛃' : '📦';
+
+        let rowClass = reste === 0 ? "hunting-main-row row-complete" : "hunting-main-row";
+        let statusHtml = reste === 0 ? '<span class="badge-done">Terminé</span>' : `<span style="color:var(--accent-hover); font-weight:bold;">${reste}</span>`;
+
+        summaryBox.innerHTML = `
+            <div style="font-family: 'Bebas Neue', Arial, sans-serif; font-size: 1.3rem; color: var(--accent-hover); margin-bottom: 8px; letter-spacing: 1px;">
+                📋 RÉSUMÉ GLOBAL : ${baseName.toUpperCase()}
+            </div>
+            <div class="data-table-container" style="box-shadow: 0 8px 16px rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: 6px;">
+                <table class="data-table" style="margin: 0;">
+                    <thead>
+                        <tr>
+                            <th>Animal / Ressource</th>
+                            <th>Total Requis</th>
+                            <th>Total Obtenu</th>
+                            <th>Reste à Chasser</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="${rowClass}" style="cursor: default; background: rgba(139,0,0,0.03);">
+                            <td><strong style="font-size: 1.05em;">${baseName}</strong></td>
+                            <td>${totalReq}</td>
+                            <td>${totalObt}</td>
+                            <td>${statusHtml}</td>
+                        </tr>
+                        <tr class="hunting-details-row" style="display: table-row;">
+                            <td colspan="4" style="padding: 0; border-top: 1px solid var(--border-color);">
+                                <div class="hunting-breakdown-box" style="margin:0; border-radius: 0 0 6px 6px;">
+                                    <div class="breakdown-item" onclick="switchView('camp', '🏕️ Camp de Base', document.querySelectorAll('.nav-item')[1])">
+                                        <div class="bd-label"><i class="theme-icon-camp" style="font-style:normal; margin-right:8px;">${iconCamp}</i>Camp de base</div> <div class="bd-value"><strong>${campStr}</strong></div>
+                                    </div>
+                                    <div class="breakdown-item" onclick="switchView('receleur', '🦊 Receleur', document.querySelectorAll('.nav-item')[2])">
+                                        <div class="bd-label"><i class="theme-icon-rec" style="font-style:normal; margin-right:8px;">${iconRec}</i>Receleur</div> <div class="bd-value"><strong>${recStr}</strong></div>
+                                    </div>
+                                    <div class="breakdown-item" onclick="switchView('trappeur', '🧥 Trappeur', document.querySelectorAll('.nav-item')[3])">
+                                        <div class="bd-label"><i class="theme-icon-trap" style="font-style:normal; margin-right:8px;">${iconTrap}</i>Trappeur</div> <div class="bd-value"><strong>${trapStr}</strong></div>
+                                    </div>
+                                    <div class="breakdown-item" onclick="switchView('stock', '📦 Gestion du Stock', document.querySelectorAll('.nav-item')[4])" style="color: ${stock > 0 ? '#4caf50' : 'var(--text-muted)'};">
+                                        <div class="bd-label"><i class="theme-icon-stock" style="font-style:normal; margin-right:8px;">${iconStock}</i>Actuellement en stock</div> <div class="bd-value"><strong>${stock}</strong></div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        `;
+        
+        summaryBox.style.display = 'block';
+        activeView.appendChild(summaryBox);
+    } else {
+        summaryBox.style.display = 'none';
+    }
 }
 
 
@@ -1758,7 +2055,7 @@ function handleSearch() {
 function handleGlobalSearchInput() {
     const input = document.getElementById('global-search');
     const dropdown = document.getElementById('global-search-dropdown');
-    const val = input.value.trim().toLowerCase();
+    const val = input.value.trim();
     
     if (typeof handleSearch === 'function') handleSearch();
 
@@ -1768,7 +2065,13 @@ function handleGlobalSearchInput() {
     }
 
     const allTerms = getAllSearchableTerms();
-    const matches = allTerms.filter(term => term.toLowerCase().startsWith(val));
+    const normVal = normalizeStr(val);
+
+    // --- CORRECTION : On cherche uniquement le début des mots (évite panthère quand on tape ant) ---
+    const matches = allTerms.filter(term => {
+        let n = normalizeStr(term);
+        return n.startsWith(normVal) || n.includes(" " + normVal) || n.includes("'" + normVal) || n.includes("(" + normVal);
+    });
 
     if (matches.length > 0) {
         dropdown.innerHTML = ""; 
@@ -2966,28 +3269,30 @@ function clearMapSearch() {
     }
 }
 
-// --- ÉCOUTEURS POUR LES BOUTONS FILTRES DU CAMP ---
+// --- ÉCOUTEURS POUR LES BOUTONS FILTRES (CAMP & TRAPPEUR) ---
 document.querySelectorAll('.filter-pill').forEach(pill => {
     pill.addEventListener('click', function() {
-        // On retire la couleur rouge de tous les boutons et on active le bon
-        document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+        let parentContainer = this.closest('.camp-filters');
+        
+        // On retire la couleur rouge de tous les boutons de CE conteneur spécifique
+        parentContainer.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
         this.classList.add('active');
 
-        // --- NOUVEAU : On vide la barre de recherche automatiquement ---
+        // On vide la barre de recherche automatiquement
         let searchInput = document.getElementById('global-search');
         if (searchInput && searchInput.value !== '') {
-            searchInput.value = ''; // Efface le texte
-            
-            // On simule une saisie clavier pour que l'application comprenne qu'il n'y a plus de texte
+            searchInput.value = ''; 
             searchInput.dispatchEvent(new Event('input')); 
-            
-            // On cache la petite croix de la barre de recherche si elle existe
             let clearBtn = document.getElementById('clear-search-btn');
             if (clearBtn) clearBtn.style.display = 'none';
         }
 
-        // On redessine le tableau
-        renderCamp();
+        // On redessine le tableau correspondant à l'onglet en cours
+        if (parentContainer.id === 'filters-camp') {
+            renderCamp();
+        } else if (parentContainer.id === 'filters-trappeur') {
+            renderTrappeur();
+        }
     });
 });
 
