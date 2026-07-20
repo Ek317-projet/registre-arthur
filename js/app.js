@@ -81,9 +81,9 @@ function importData(event) {
 // =========================================================
 const initialData = {
     camp: [
-        { id: 1, category: "Améliorations", item: "Quartiers d'Arthur <br><small style='color: var(--text-muted); font-weight: normal;'>(Crâne d'alligator)</small>", resource: "Alligator (une carcasse)", total: 1, current: 0 },
+        { id: 1, category: "Améliorations", item: "Quartiers d'Arthur <br><small style='color: var(--text-muted); font-weight: normal;'>(Crâne d'alligator)</small>", resource: "Alligator (Animal entier non dépecé)", total: 1, current: 0 },
         { id: 2, category: "Améliorations", item: "Tables du camp <br><small style='color: var(--text-muted); font-weight: normal;'>(Nappe en cuir d'antilope)</small>", resource: "Antilope", total: 2, current: 0 },
-        { id: 3, category: "Améliorations", item: "Chariot garde-manger <br><small style='color: var(--text-muted); font-weight: normal;'>(Crâne d'antilope)</small>", resource: "Antilope (carcasse)", total: 1, current: 0 },
+        { id: 3, category: "Améliorations", item: "Chariot garde-manger <br><small style='color: var(--text-muted); font-weight: normal;'>(Crâne d'antilope)</small>", resource: "Antilope (Animal entier non dépecé)", total: 1, current: 0 },
         { id: 4, category: "Sacoches", item: "Toutes les sacoches <br><small style='color: var(--text-muted); font-weight: normal;'>(1 peau requise par modèle)</small>", resource: "Biche", total: 7, current: 0 },
         { id: 5, category: "Sacoches", item: "Sacoche de provisions", resource: "Bison", total: 1, current: 0 },
         { id: 6, category: "Sacoches", item: "Sacoche d'ingrédients", resource: "Blaireau", total: 1, current: 0 },
@@ -97,8 +97,8 @@ const initialData = {
         { id: 14, category: "Sacoches", item: "Sacoche de matériaux", resource: "Iguane", total: 1, current: 0 },
         { id: 15, category: "Sacoches", item: "Sacoche d'objets de valeur", resource: "Lapin", total: 1, current: 0 },
         { id: 16, category: "Sacoches / Améliorations", item: "Sacoche de Légende de l'Est et Feu de camp principal <br><small style='color: var(--text-muted); font-weight: normal;'>(Couverture du trône du feu de camp)</small>", resource: "Loup", total: 3, current: 0 },
-        { id: 17, category: "Améliorations", item: "Feu de camp principal <br><small style='color: var(--text-muted); font-weight: normal;'>(Crâne de loup)</small>", resource: "Loup (carcasse)", total: 1, current: 0 },
-        { id: 18, category: "Améliorations", item: "Quartiers d'Arthur <br><small style='color: var(--text-muted); font-weight: normal;'>(Crâne de mouflon)</small>", resource: "Mouflon mâle (une carcasse)", total: 1, current: 0 },
+        { id: 17, category: "Améliorations", item: "Feu de camp principal <br><small style='color: var(--text-muted); font-weight: normal;'>(Crâne de loup)</small>", resource: "Loup (Animal entier non dépecé)", total: 1, current: 0 },
+        { id: 18, category: "Améliorations", item: "Quartiers d'Arthur <br><small style='color: var(--text-muted); font-weight: normal;'>(Crâne de mouflon)</small>", resource: "Mouflon mâle (Animal entier non dépecé)", total: 1, current: 0 },
         { id: 19, category: "Améliorations", item: "Feu de camp principal <br><small style='color: var(--text-muted); font-weight: normal;'>(Bois d'orignal)</small>", resource: "Orignal (Bois)", total: 1, current: 0 },
         { id: 20, category: "Sacoches", item: "Sacoche de nécessaires", resource: "Panthère", total: 1, current: 0 },
         { id: 21, category: "Améliorations", item: "Feu de camp principal <br><small style='color: var(--text-muted); font-weight: normal;'>(Couverture de siège du feu de camp)</small>", resource: "Rat musqué", total: 1, current: 0 },
@@ -692,9 +692,20 @@ function renderCamp() {
                 actionHtml = `<td>${makeStarsHtml(dbItem.current, dbItem.total, `updateQty('camp', ${req.id}, QTY)`)}</td>`;
             }
 
+            // --- NOUVEAU : Récupération des détails entre parenthèses (Animal entier non dépecé, bois...) ---
+            let resName = dbItem.resource;
+            let mainPart = resName;
+            let extraPart = "";
+
+            if (resName.includes("(")) {
+                mainPart = resName.split("(")[0].trim();
+                // On récupère la parenthèse et on l'affiche en plus petit, couleur grisée
+                extraPart = "<br><small style='font-weight:normal; color:var(--text-muted);'>(" + resName.split("(")[1] + "</small>";
+            }
+
             tr.innerHTML = `
                 ${firstColumnHtml}
-                <td>${dbItem.resource.split('(')[0].trim()}</td>
+                <td>${mainPart} ${extraPart}</td>
                 ${actionHtml}
             `;
             groupItemsElements.push(tr);
@@ -1027,12 +1038,37 @@ function getBaseAnimalName(itemName) {
     return itemName;
 }
 
+// --- MÉMOIRE DES LÉGENDAIRES ISSUS DU STOCK ---
+function registerLegendaryFromStock(rawName) {
+    if (!rawName) return;
+    let baseName = getBaseAnimalName(rawName);
+    let normName = normalizeStr(baseName);
+    if (normName.includes("legendaire")) {
+        if (!db.legendariesFromStock) db.legendariesFromStock = [];
+        if (!db.legendariesFromStock.includes(normName)) {
+            db.legendariesFromStock.push(normName);
+            localStorage.setItem('rdr2_tracker_db', JSON.stringify(db)); // Sauvegarde silencieuse de l'autorisation
+        }
+    }
+}
+
 function syncStockAutomatique(rawResourceName, delta) {
     if (!rawResourceName || delta === 0) return;
     
     let baseName = getBaseAnimalName(rawResourceName);
     let normName = normalizeStr(baseName);
     
+    // 1. On bloque si ce n'est pas un animal légendaire
+    if (!normName.includes("legendaire")) {
+        return; 
+    }
+
+    // 2. NOUVELLE SÉCURITÉ : On bloque si cet animal n'a jamais été entré via l'onglet Stock !
+    if (!db.legendariesFromStock || !db.legendariesFromStock.includes(normName)) {
+        return;
+    }
+    
+    // --- La suite s'exécute UNIQUEMENT pour les légendaires validés par le Stock ---
     let stockIndex = db.stock.findIndex(s => normalizeStr(s.resource) === normName);
 
     if (delta > 0) {
@@ -1354,6 +1390,9 @@ function allocateTalismanPart(talismanId, compIdx, compName, baseAnimalName) {
     let qtyInput = document.getElementById('stock-qty');
     let qty = parseInt(qtyInput.value) || 1;
 
+    // ---> ON MÉMORISE L'ANIMAL LÉGENDAIRE <---
+    registerLegendaryFromStock(baseAnimalName);
+
     let talisman = db.receleur.find(x => x.id === talismanId);
     if (talisman && talisman.components[compIdx]) {
         talisman.components[compIdx].checked = true;
@@ -1385,6 +1424,9 @@ function allocateTalismanPart(talismanId, compIdx, compName, baseAnimalName) {
 function directAddRoute(resourceName, destination) {
     let qtyInput = document.getElementById('stock-qty');
     let qty = parseInt(qtyInput.value) || 1;
+    
+    // ---> ON MÉMORISE L'ANIMAL LÉGENDAIRE <---
+    registerLegendaryFromStock(resourceName);
     
     let allocated = applyResourceToCategory(resourceName, destination, qty);
     let remaining = qty - allocated;
@@ -1491,6 +1533,9 @@ function addResourceToStockPlain() {
     let qty = parseInt(qtyInput.value) || 1;
     
     if (rawInput.trim() === '') return;
+    
+    // ---> ON MÉMORISE L'ANIMAL LÉGENDAIRE <---
+    registerLegendaryFromStock(rawInput);
     
     let normInput = normalizeStr(rawInput);
     let resName = rawInput.charAt(0).toUpperCase() + rawInput.slice(1);
